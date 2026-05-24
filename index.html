@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciamento de Parcerias – Carla Dias | Bild</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6GVzMaaMmnK8DzZb2b1nLutkfYWliIjY",
+    databaseURL: "https://bild-parcerias-default-rtdb.firebaseio.com",
+    projectId: "bild-parcerias",
+    authDomain: "bild-parcerias.firebaseapp.com",
+    storageBucket: "bild-parcerias.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "painel-carla"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const dbRef = ref(db, 'registros');
+
+  // Expose Firebase functions to global scope for use in main script
+  window._fbPush   = (data) => push(dbRef, data);
+  window._fbRemove = (key)  => remove(ref(db, 'registros/' + key));
+  window._fbListen = (cb)   => onValue(dbRef, snap => {
+    const raw = snap.val();
+    const arr = raw ? Object.entries(raw).map(([k,v]) => ({...v, _fbKey: k})) : [];
+    cb(arr);
+  });
+  window._firebaseReady = true;
+  window.dispatchEvent(new Event('firebaseReady'));
+</script>
+<style>
+:root{
+  --brand:#E8611A;--brand-d:#C44E0E;--brand-l:#FEF3EC;--brand-m:#FBCFB0;
+  --green:#1E7A3E;--green-l:#EDFAF3;
+  --amber:#B45309;--amber-l:#FFFBEB;
+  --red:#B91C1C;--red-l:#FEF2F2;
+  --purple:#6D28D9;--purple-l:#F5F3FF;
+  --sky:#1B5FA8;--sky-l:#EEF5FF;
+  --bg:#FBF7F4;--sfc:#FFF;--bdr:#EDD9CC;
+  --txt:#1A0A02;--txt2:#5C3D2A;--txt3:#A07860;
+  --r:10px;--rlg:16px;--rxl:20px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 6px 20px rgba(0,0,0,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--sfc);border-right:1px solid var(--bdr);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--bdr)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-icon{width:32px;height:32px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.sb-nav{padding:14px 10px;flex:1}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border:none;background:none;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:var(--txt2);text-align:left;transition:.15s;margin-bottom:2px;font-family:'Inter',sans-serif}
+.nav-btn:hover{background:var(--bg);color:var(--txt)}
+.nav-btn.active{background:var(--brand-l);color:var(--brand)}
+.nav-btn svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2}
+.sb-footer{padding:14px 18px;border-top:1px solid var(--bdr);font-size:11px;color:var(--txt3)}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+
+/* TOPBAR — dois níveis no dashboard */
+.topbar{background:var(--sfc);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:50}
+.topbar-row1{padding:13px 24px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.topbar-actions{display:flex;gap:8px}
+
+/* FILTRO DE MÊS */
+.filter-bar{padding:10px 24px 12px;display:flex;align-items:center;gap:16px;border-top:1px solid var(--bdr);background:var(--bg);flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:8px}
+.filter-label{font-size:12px;font-weight:500;color:var(--txt2);white-space:nowrap}
+.mes-pills{display:flex;gap:6px;flex-wrap:wrap}
+.mes-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--bdr);background:var(--sfc);color:var(--txt2);transition:.15s;font-family:'Inter',sans-serif}
+.mes-pill:hover{border-color:var(--brand-m);color:var(--brand);background:var(--brand-l)}
+.mes-pill.active{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 2px 8px rgba(232,97,26,.3)}
+.filter-sep{width:1px;height:24px;background:var(--bdr);flex-shrink:0}
+.filter-bar-hidden{display:none}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;border:none;font-family:'Inter',sans-serif}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-d)}
+.btn-ghost{background:transparent;color:var(--txt2);border:1px solid var(--bdr)}.btn-ghost:hover{background:var(--bg);color:var(--txt)}
+
+.content{padding:24px;flex:1}
+.panel{display:none}.panel.active{display:block;animation:fi .2s}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ====== FILTER BADGE ====== */
+.filter-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-l);color:var(--brand);border:1px solid var(--brand-m);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;margin-bottom:18px}
+.filter-badge.hidden{display:none}
+
+/* ====== VENDAS HERO ====== */
+.vendas-hero{background:linear-gradient(135deg,#B84A0A 0%,#E8611A 55%,#F5843E 100%);border-radius:var(--rxl);padding:24px 28px;margin-bottom:20px;color:#fff;box-shadow:0 8px 32px rgba(232,97,26,.28);display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto auto;gap:0 20px;align-items:center}
+.vh-item{}
+.vh-label{font-size:11px;font-weight:500;opacity:.65;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.vh-val{font-size:30px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.vh-sub{font-size:11px;opacity:.55;margin-top:2px}
+.vh-divider{width:1px;background:rgba(255,255,255,.2);height:52px;align-self:center}
+.vh-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 18px;text-align:center;white-space:nowrap}
+.vh-badge-num{font-size:24px;font-weight:800;letter-spacing:-1px}
+.vh-badge-lbl{font-size:10px;opacity:.6;margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
+
+/* ====== CARDS DE VENDA ====== */
+.vendas-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.venda-card{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:16px;box-shadow:var(--sh);position:relative;transition:.15s}
+.venda-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
+.venda-card::after{content:'VENDA';position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;letter-spacing:.8px;background:var(--green-l);color:var(--green);padding:2px 8px;border-radius:20px}
+.vc-val{font-size:20px;font-weight:700;color:var(--green);letter-spacing:-.5px;margin-bottom:4px}
+.vc-imob{font-size:13px;font-weight:600;color:var(--txt)}
+.vc-meta{font-size:11px;color:var(--txt3);margin-top:2px}
+
+/* ====== BIG NUMBERS MENSAIS ====== */
+.bignums-sec{margin-bottom:24px}
+.bignums-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.bignum{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:18px 20px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:.15s}
+.bignum:hover{box-shadow:var(--sh-md)}
+.bignum::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rlg) var(--rlg) 0 0}
+.bignum.c-blue::before{background:var(--brand)}
+.bignum.c-sky::before{background:var(--sky)}
+.bignum.c-green::before{background:var(--green)}
+.bignum.c-purple::before{background:var(--purple)}
+.bn-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.c-blue .bn-icon{background:var(--brand-l)}.c-blue .bn-icon svg{stroke:var(--brand)}
+.c-sky .bn-icon{background:var(--sky-l)}.c-sky .bn-icon svg{stroke:var(--sky)}
+.c-green .bn-icon{background:var(--green-l)}.c-green .bn-icon svg{stroke:var(--green)}
+.c-purple .bn-icon{background:var(--purple-l)}.c-purple .bn-icon svg{stroke:var(--purple)}
+.bn-icon svg{width:18px;height:18px;stroke-width:2;fill:none}
+.bn-label{font-size:11px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.bn-val{font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--txt);line-height:1;margin-bottom:3px}
+.bn-sub{font-size:12px;color:var(--txt2)}
+
+/* ====== SECTION TITLE ====== */
+.sec-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ====== CHART CARDS ====== */
+.charts3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.chart-card{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:18px;box-shadow:var(--sh)}
+.cc-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.cc-sub{font-size:11px;color:var(--txt3);margin-bottom:12px}
+.cw{position:relative;width:100%}
+.h170{height:170px}.h200{height:200px}.h160{height:160px}.h240{height:240px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2)}
+.ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ====== ANÁLISE MENSAL ====== */
+.mensal-table{width:100%;border-collapse:collapse;font-size:12px}
+.mensal-table th{padding:8px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--txt3);border-bottom:1px solid var(--bdr);background:var(--bg)}
+.mensal-table td{padding:8px 10px;border-bottom:1px solid var(--bdr);color:var(--txt);vertical-align:middle}
+.mensal-table tr:last-child td{border-bottom:none}
+.mensal-table tr:hover td{background:#F8FAFC}
+.bar-mini{height:6px;border-radius:3px;background:var(--brand-m);position:relative;min-width:20px;overflow:hidden}
+.bar-mini-fill{position:absolute;top:0;left:0;height:100%;background:var(--brand);border-radius:3px}
+.num-atend{color:var(--brand);font-weight:600}
+.num-trein{color:var(--amber);font-weight:600}
+.num-venda{color:var(--green);font-weight:600}
+
+/* ====== FORM ====== */
+.form-wrap{max-width:720px}
+.form-hint{font-size:13px;color:var(--txt3);margin-bottom:18px}
+.fcard{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:22px;box-shadow:var(--sh)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}.fg.full{grid-column:1/-1}
+.flabel{font-size:12px;font-weight:500;color:var(--txt2)}
+.finput,.fselect,.ftextarea{padding:9px 11px;border:1px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--txt);background:var(--bg);transition:.15s;width:100%}
+.finput:focus,.fselect:focus,.ftextarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(232,97,26,.1);background:var(--sfc)}
+.ftextarea{resize:vertical;min-height:80px}
+.factions{margin-top:6px;display:flex;gap:10px}
+
+/* ====== TABLE ====== */
+.tcard{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);box-shadow:var(--sh);overflow:hidden}
+.search-bar{display:flex;gap:8px;padding:14px 16px;border-bottom:1px solid var(--bdr);background:var(--bg);flex-wrap:wrap}
+.sinput{flex:1;min-width:180px;padding:8px 11px;border:1px solid var(--bdr);border-radius:var(--r);font-size:12px;font-family:'Inter',sans-serif;background:var(--sfc);color:var(--txt)}
+.sinput:focus{outline:none;border-color:var(--brand)}
+.fsel{padding:8px 11px;border:1px solid var(--bdr);border-radius:var(--r);font-size:12px;font-family:'Inter',sans-serif;background:var(--sfc);color:var(--txt);cursor:pointer}
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--txt3);border-bottom:1px solid var(--bdr);background:var(--bg);white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--bdr);color:var(--txt);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#F8FAFC}
+.tn{font-weight:500;font-size:12px}
+.ts{font-size:11px;color:var(--txt3)}
+.tobs{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt2);font-size:11px}
+.tdate{font-size:11px;color:var(--txt3);white-space:nowrap}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+.ba{background:#EEF4FF;color:#E8611A}.bt{background:#FFFBEB;color:#B45309}
+.bv{background:#ECFDF5;color:#0F7938}
+.sf{background:#FEF2F2;color:#B91C1C}.sm{background:#FFFBEB;color:#B45309}.sq{background:#ECFDF5;color:#0F7938}
+.bsim{background:#EEF4FF;color:#E8611A}.bnao{background:#FEF2F2;color:#B91C1C}
+.empty{text-align:center;padding:40px;color:var(--txt3)}
+.toast{position:fixed;bottom:24px;right:24px;background:#0D1829;color:#fff;padding:11px 18px;border-radius:var(--r);font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1;transform:none}
+@media print{.sidebar,.topbar-actions,.factions,.delbtn,.search-bar .btn{display:none!important}.main{margin-left:0}.topbar{position:static}.panel.active{display:block!important}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div style="text-align:center;padding:4px 0 8px">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADhAOEDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAUHAwQCBggB/8QARRAAAQMDAQQDDAcFCAMAAAAAAQACAwQFESEGBxIxE0FRFBciNFVhcXJzkaLRFjIzNoGxs0J0obLBFSM3UlOCk9JDYpL/xAAbAQEAAQUBAAAAAAAAAAAAAAAAAQIDBQYHBP/EADkRAAIABAMDCQcDBAMAAAAAAAABAgMEEQUhMUFRYQYSFHFykaGx0RMyNFJTwfAWgZIVNTbhIiMz/9oADAMBAAIRAxEAPwDsSIi4ydtCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIvhIAJPIKAfUU/9C9rPINX8PzT6F7WeQav4fmvV0Kp+nF/F+h5enUv1Yf5L1IBFP/QvazyDV/D818+he1fkGr9zfmnQqn6cX8X6Dp1L9WHvXqQKKRudivVsYZLhaqynjHOR8R4B/uGn8VHKxHBFA+bGrPiX4JkExc6B3XAIs9vo6q4VkdHQwPnqJc8EbebsAk/wBKmPoXtZ5Bq/h+arl086arwQNrgmyiZUyZTtMjSfFpEAin/oXtZ5Bq/h+ah7lRVdtrH0ddA+Cojxxxv5jIyP4JMp50pXjgaXFNeZEupkzXaXGm+DTMCKdZsbtU9jXssVWWuGQfB1HvXL6F7WeQav4fmrnQqn6cX8X6FHTqX6kPevUgEUheLHeLQ2N1zt81I2UkRmTHhEc+RWW17N366Ugq7da56mAuLeNhbjI5jUq2qec4+YoHzt1nfu1LjqZKg9o41zd91bvIpFP/QrazyDV+9vzT6FbWeQav3t+audCqfpRfxfoW+nUv1Yf5L1IBFNz7IbUws45LDXY/8ASPjPublQ9RBPTS9FUwSwSDmyRha73HVWpkmZL9+FrrTRdlz5U3/ziT6mmcERFbLoREQBERAEREAREQBcJvsn+qVzXCb7J/qlUxaMlanqxERdoOIhFWO8jbi+WDad1ut/cnQiBj/72IuOTnOuR2La3ebwpr5c2Wm600MVRICYpYchryBktLSTg4B1ysRDjdK6l0zbUV7aZXMu8Dq1TKpSThtfXOxYbmhzS1wBaRggjQqot7OxVNQQG/WiERQ8QFVA0eCzPJ7R1DOhHnHnVvLTvlNHWWatpZgDHLA9js9haVfxOgl1siKCJZ7Huf5qWcLr5lFUQxwPLat6/NCid1P+IVo9aX9GRegl583THO8CzntMv6Mi9BrDcknejj7T8oTM8rvjIOyvOILz/vd+/ly9WP8ATavQC8/73fv5cvVj/TaquVnwcPa+zI5I/Gxdl+aL5t/iFP7Jv5BZ1gt/iFP7Jv5BZ1ssHuo1iP3mVfv/APE7P7WX+UKZ3J/chv7zJ/RQ2/8A8Ts/tZf5Qpncn9yG/vMn9FrEn+/TOz9oTaZ3+Py+194ju6Ii2k1QLUudtoLnTGmuFJDVRH9mRgOPR2HzhbaKmKGGJc2JXRVDE4WooXZlO7ebtpLfDJcrCZJ6duXSUztXsHWWn9oebn6VW41GQvVRVK74tl47VXtvNDGGUlW8iVgGkcp1yPM7U+kHtWkY9gcEiF1FOrLat3FehvXJ/Ho58apqh3ex7+D9ToCIi1I3EIiIAiIgCIiALhN9k/1Sua4TfZP9UqmLRkrU9WIiLtBxEp/evs5fbnte+rt9rqKmA08beNgGMjORzWfdhsNd6S+w3m7wdyR04Jiic4F73EEZIB0ABPPXkrZTAWDWAU/S+lRNt3vbK1+65nXygqeiKlhSSta+d7Bdc3i3qKy7K1czngTzMMEDetz3Aj+AyfwXY1TW92x7TGsddq2Zlbb48iPoWFop2k9bdfxdk/hoFfxiqm01LFFKhbflxf51nnwWllVNXDDNiSSzz28F+dRA7qBjeFaAP80v6Mi9Brz7up/xCtHrS/oyL0EsZyT+Ej7T8oTK8rvjIOyvOILz/vd+/ly9WP8ATavQC8/73fv5cvVj/Tap5WfBw9r7Mjkj8bF2X5ovm3+IU/sm/kFnWC3+IU/sm/kFnWywe6jWI/eZV+//AMTs/tZf5Qpncn9yG/vMn9FDb/8AxOz+1l/lCmdyf3Ib+8yf0WsSf79M7P2hNpnf4/L7X3iO7qs9/E88NHaRDPLGHSScQY8tzo3njmrMVX7/ALxS0e0l/JqyOPNrD5luHmjG8n0niMu/HyZ0Cw7V3+y1DZaS4zvYDrBM8vjcOzB5ekYKvXY3aGl2ksrK+naY3g8E0ROTG8cx5xqCD2FecFZW4OeQXa6UwJ6J0DJCOoODiB/An3LVeTuIzoKmGQ3eGLweuRtnKTDZMyliqIVaKHbvV7ZlvqI2ztjbxsvX0BaC58JdHpye3Vp94Cl0PJb9NlwzYHBFo1Y59KmRSo4ZkOqd+48qtOWg9q+rJVta2rna36okcB6MlY1x1q2R2hO6uEREJCIiAIiIAuE32T/VK5rhN9k/1SqYtGStT1YiIu0HESnt7O0F7tu2D6WgulVTQCnjdwRvwMnOT/BQ+z+8XaG21jHVtY+vpOIdLHKAXcPWWu5g+nRTe9bZq/XTa59ZbrXPUwGnjbxsLcZGcjU+dROz27baCvq4xcqYW+k4h0rpHgvLesNAJ19OFz2qWJuvj9hz/edtbelvA6JSRYZ/T4Pb8z3VfS/rfxLyie2SNsjCHMcA5pHWCksbJY3RyMa9jwWua4ZBB5gpExscbY2ABrQAAOoBcl0HVZnPNuRTdnsjbBvsoqCIEU5fJLBnqY6GTA/A5H4K5FXl/kjdvu2fjbjjZSycf4xzYVhrDYNJgk+3lwaKN+UPkZrGp0c/2EyPVwLzi8wvP+937+XL1Y/02r0AvP8Avd+/ly9WP9Nq8XKz4OHtfZnu5I/Gxdl+aL5t/iFP7Jv5BZ1gt/iFP7Jv5BZ1ssHuo1iP3mVfv/8AErP7WX+UKE2D2/pdm7ALbNbZ6h4ldJxse0DBxpqrP2s2Xtu00dPHcXVDRTuc5nQvDdSBnOQexQHeq2Z/1bj/AMzf+q1isw7EFXxVVK0rpLPqXDgbVRYlhzw+Glqk3Zt5db48SO771B5Fq/8Alaup7xdsqfaqGijgoZqY0znk8bweLiA7PQu+96rZn/VuP/M3/qul70tkrXszT0ElufUuNQ97X9K8O0AHLAHavBiUvF1SxuoiTg22tvXA9+Fx4O6qBU8LUedr33PjuOiK7tzuzk9ns81fXRmKqri0iNww5kbc8IPYSST7lo7mrBaJrDHep6KOWu6d7WyP8Lg4TgYB0B8/NWUvVyfwb2fNq5ju2rpbr7+Njyco8a9rzqOWrJPN77buFwtK/VzLZZa24SEBtPC5/pIGg9+Fuqrd920bRCzZylky9xElWQeQGrWficO/Adqz+JVkNHTRTXrs69hr2GUUVZUwylpt6tpU+p1ccnrPavqIuTnXgiIpAREQBERAFwm+yf6pXNfHDiaWnrGFD0C1PVSKmu+1e/Jlv+P5p32r35Mt/wAfzXSP1LQfM+5nMv0xiHyrvRcqKmu+1e/Jlv8Aj+ad9u9+TLf8fzT9S0HzPuY/TGIfKu9FyrSvVzorPbZbhXzCKCIZJ63HqAHWT2KpJt7N/dGWxUNujceTuF5x8S6dfb5db5UCe6VslQ5v1GnRjPQ0aBeWr5U08EH/AEJxRcVZHrpOSlTHGvbtQw8M2do2Ou0183v0d0nHC6eWUtZ/kaIXhrfwACvFeZtnLrNY73TXWnijllpy4tZJnhPEwt1x5nLunfbvfky3/H814MDxqnpZMaqInzoom9L6pfcyGO4HUVU6B08K5sMKWttG/sXKvP8Avd+/ly9WP9Nqm++1e/Jtv+P5rpe013nv14nudTFHFLMGhzY88IwAOv0KnH8Xpa2mUuS23e+j3Mq5P4PVUNS5k5JJq2vFHpK3+IU/sm/kFnVLw7171FCyJttt5DGhoJ4+oelc++1e/Jlv+P5rNQ8pKBJLnPuZhIuTOINt81d6LlRU132r35Mt/wAfzTvtXvyZb/j+an9S0HzPuZH6YxD5V3ouVVhv+8StHtZfyaonvtXvyZb/AI/muv7Z7YV+1EVNHWUtNAKdznNMXFk5AGuSexY/Fcco6mkjlS27u2x70ZHCMBrKWsgmzErK+1bmWfuV+40X7xL+a7sqB2a28u2z9lFroaWjcwPc8SStcXZJz1EBaV82x2kvLHRVlzkbC7nDCBGw+Y41I9JKppuUdNTUkuWk4okkuF7byark1VVVZMmNqGFtve7dX+yz9vd4dFaIpKG0PZV3EgjjacxwntJ6z5h+PYaVqJpqiokqKiV0ssri973HJc46klY8AdS+rWsRxOdXx86ZklotiNow3C5GHwc2Xm3q9r/0ERFjzJBERAEREAREQBERAEREARS9p7mhsVbXS0FNVysqYYmCfj4WhzZCfqObr4IWVlvhvNJDNbKRlLVmrjpZIGyOMTjICWvHESW6tdkZOmqvqniiS5ru3nbO55oqmGFvnKyTtfK2l999pBop2fZqcM46Wd8gbOyCQz0z4AC93C1wLubc9ehGRoscthzeIrTTVUklW97mvZNSvh4A0El2uSW4B8+nJS6ScsmvFbd2ef7BVkl6Pwezfu/chkU5U7OyM7nfDPM+GWqZSudNSPhcxzz4J4Tzbodc9WoGVxrLLSwxVjoLsyodQPaKtop3NDWl4YXMJPh4cQMYHPTKh0s1XutOK69+f7BVcp2s9eD9Mv3IVFKPslQyur6V0jT3GAQ9oyJS8gRBvr8QI82vUslRZImGrp4LlHUVtGxz54WxFrcM+vwPJ8Lh1zoNAcZUdHm7vL8ej0J6VKyz8/zaiHRTd4tkfQmopixhgoKKWWIN1IkhZxSf/Zbn1wscltfSW6uMjqd0jKWCeRroyXxcbxhrTnQ4LSdOTsJFTxwt32X8L+jENTLiSe+3jb1REIuwv2cphWvt7b5T92Mh6dzXQuEbWBgkdl4zqGZOMdWM50Wr/YhqG0brVVtrW1VT3K3ijMRbLgEAgk6EHIOeo8lVFSTVs8U/BO5TDWSXt8GvNEQimbjYJKahkrIJppooXtZMZKR8OOI4Dm8X1m506jqNNVkuNggpprjSU92jq6y3h7pomwOa0tY7DuFxOpHMjHbgnCOlmq914rjpnno9Lkqrku1n4PhrllqtSCRT1ZY6N8tqp7ZWSS1FZA2RzZouBrR4fE/iycAcPLB69epaVRboO4Jq2grxWRwPa2YGExuaHZDXAEnLSRjqI001VMVNMhvdeK3X/ey1toTBVS4rWfg99v2u9N5HIiKyegIiIAiIgCIiAIiIAiIgCIiAkLbcKenoKiiqqE1UM0jJNJzGWlocBqAc/WKyuvcsL6QW2mioYqWcVDGAl5fKP2nuP1tNMaDBOmpUUiuqfMSST04K+/XXxLLp5cTba167btNNCTrbnS1AaGWzgBkD5GvqpHtcB+wBkcLfefOtk7SSQtpWUFKYWU0xla2eodONWlhYM44WFpIIGp7dAoNSVPHGdlq+YxtMja6ma1+NQCyfIB7Dge4K5LnzYonZ2fUtmexcC1NkSlCucrq9tXty38TlJdYe6KWamoXRdBO2Yh9U+XiLSCGjOgGnYT51hZcXsbc2iJuLg3hdqfA/vWyadurcfipqezWBt1uVubU3NrqBkkrpSGOD2s1cwN0IONA7OMjkAtSKz0Ve6gmt81RBT1Esscwnw90XRtD3EFoHFlh0GBrp51eilT72ur6ZW7L87eJZgnU9r2dtc79peV/A1qy91FRa6KiDGRPpeEmdp8OXgz0fF6gJA9K51F7jk7rngtsMFZWscyeZshLcO+vwM5N4uvU6EgYyvsVJbamlfW251Ww0s0QljqHNdxte7Ac0tAwcjUHPPmdVv32htdVtFeKWkfWCrjfUSte8NETywuc5vDjLdAcHJ5DQZ0KGfFDzucneyWmeqy45Nb+JDikKLm81q129ctHnvWa39RG018fFdIKx9LFNGykZRywOceGaNsQjIJ8/CD5isEt1mmbdDM0SSXEgyPzjhIkD9B6RjHUpbonMbV9JI6bOz8T28YHgAuhIAxjQZwOtce4BJdYOmbVVjIbfTTYaYmBuWMIa5zxwhgJxqCToOvKhwTmubfVvZvun4CGZJTvzdEtu6zXi0R8l4kku1RcegYHT074C3iOAHQmLPuOVwoLvUUNLBDTBrZIKxtYyQ6+EG8IBHYpistFK+/VDq6rqjA63GvJaY3SDGnBlvgHUEAjAxjljC1qO3NuNJQU9PUzQ09RcKhjWyYf0bWxxOL9AMu4SdNBoMYyUcqeo3Z53e69213XdgptO4VllZb7WSb/e2ZpXC5U9REGQUDqZxeHuJqnyAYz4LQeQ9OToNV9fd5HXS6V/QNDriJw5vFozpXEnHbjK5S0luqbXVVtt7sjNI5nSMqHNdxseeEOBaBg5xprz56KKViZMmQtNvXPK3Fbus9EuXKiTSWmWd+D9CWivTov7PmjpWd10LRG2UvJa+MFx4XM8/EQTnksdVcYDQy0dBb20cU72um/vnSOfw5LWgnk0E5xqeWToo5FS58xq1/BdXisnv2lap5ad7eL33881u2BERWi+EREAREQBERAEREAREQBERAEREAWZlVMyhlogR0MsrJXDGvEwODdfQ9ywoibWhDSeTNx90rH11ZWlzOmrWSMmIboQ/wCtgdS401xrKaKnjgl6Puec1ETgBlryGgnz6NGnL3rVRV+0jve5R7KC1rfmhv1V2qp4hC2Klp4ukErmU8DYw94zhzsc+Z05DOgWWsv9wqjUvkFM2aryKiZkDWySNPNpcBy7cYJHMlRaKr2835mU9HlZf8UbjrpVu48lnh0jaN3g/wDjbw4/HwBqubLxVh7i9kEzH08dPJFJHlj2RgBuevI4Qcgg+8rQRU+1j3k+xl7vz8RIT3itmldI7oWk0hpMMiDWiLPIAaD0rDBcaynhpo4JTEaaodUQvaMOa9waCc/7G/xWqiObG3e4UmWlZQo3qy61NTSmm6Klp4XOD5GU8DYxI4ZwXYHVk6chnQLRRFEUcUbvEyqCCGBWhVgiIqSsIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiID/2Q==" alt="Bild Desenvolvimento Imobiliário" style="width:90px;height:auto;border-radius:8px;display:block;margin:0 auto 10px">
+      <div style="font-size:12px;font-weight:700;color:var(--txt);line-height:1.3">Gerenciamento de<br>Parcerias</div>
+      <div style="font-size:11px;color:var(--brand);font-weight:600;margin-top:2px">Carla Dias</div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <button class="nav-btn active" onclick="nav('novo')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Novo registro
+    </button>
+    <button class="nav-btn" onclick="nav('dash')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <button class="nav-btn" onclick="nav('mensal')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Análise mensal
+    </button>
+    <button class="nav-btn" onclick="nav('hist')">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Histórico
+    </button>
+  </div>
+  <div class="sb-footer" style="text-align:center">© Bild Desenv. Imobiliário</div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-row1">
+      <div class="topbar-title" id="pg-title">Novo registro</div>
+      <div class="topbar-actions">
+        <div style="display:flex;align-items:center;gap:6px;margin-right:8px">
+          <div id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:#94A3B8;flex-shrink:0;transition:background .3s"></div>
+          <span id="sync-lbl" style="font-size:11px;color:var(--txt3)">Conectando...</span>
+        </div>
+        <button class="btn btn-ghost" onclick="exportCSV()">↓ Exportar CSV</button>
+        <button class="btn btn-ghost" onclick="gerarPDF()" id="btn-pdf">⬇ Exportar PDF</button>
+      </div>
+    </div>
+    <!-- Filtros — visíveis só no dashboard -->
+    <div class="filter-bar filter-bar-hidden" id="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">Mês:</span>
+        <div class="mes-pills" id="mes-pills"></div>
+      </div>
+      <div class="filter-sep"></div>
+      <div class="filter-group">
+        <span class="filter-label">Produto:</span>
+        <div class="mes-pills" id="prod-pills">
+          <button class="mes-pill active" onclick="filtrarProd('todos')">Todos</button>
+          <button class="mes-pill" onclick="filtrarProd('Intento')">Intento</button>
+          <button class="mes-pill" onclick="filtrarProd('Amati')">Amati</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- NOVO REGISTRO -->
+    <div class="panel active" id="panel-novo">
+      <div class="form-wrap">
+        <p class="form-hint">Preencha os dados após cada atendimento, treinamento ou venda.</p>
+        <div class="fcard">
+          <div class="fgrid">
+            <div class="fg"><label class="flabel">Data *</label><input class="finput" id="f-data" type="date"></div>
+            <div class="fg"><label class="flabel">Ação *</label>
+              <select class="fselect" id="f-acao"><option value="">Selecione...</option><option>Atendimento</option><option>Treinamento</option><option>Venda</option></select>
+            </div>
+            <div class="fg"><label class="flabel">Produto *</label>
+              <select class="fselect" id="f-produto"><option value="">Selecione...</option><option>Intento</option><option>Amati</option></select>
+            </div>
+            <div class="fg"><label class="flabel">Imobiliária *</label><input class="finput" id="f-imob" type="text" placeholder="Ex: House, LG, Conect..."></div>
+            <div class="fg"><label class="flabel">Nome do Corretor</label><input class="finput" id="f-corretor" type="text"></div>
+            <div class="fg"><label class="flabel">Nome do Cliente</label><input class="finput" id="f-cliente" type="text"></div>
+            <div class="fg"><label class="flabel">Unidade</label><input class="finput" id="f-unidade" type="text" placeholder="Ex: 401, 1201..."></div>
+            <div class="fg"><label class="flabel">Valor (R$)</label><input class="finput" id="f-valor" type="number" step="0.01" placeholder="0,00"></div>
+            <div class="fg"><label class="flabel">Realizou Fluxo?</label>
+              <select class="fselect" id="f-fluxo"><option value="">—</option><option value="sim">Sim</option><option value="não">Não</option></select>
+            </div>
+            <div class="fg"><label class="flabel">Situação</label>
+              <select class="fselect" id="f-situacao"><option value="">—</option><option>Frio</option><option>Morno</option><option>Quente</option></select>
+            </div>
+            <div class="fg full"><label class="flabel">Próximos Passos</label><textarea class="ftextarea" id="f-passos" placeholder="O que foi combinado, próximo contato..."></textarea></div>
+            <div class="fg full"><label class="flabel">Observações</label><textarea class="ftextarea" id="f-obs"></textarea></div>
+            <div class="fg full factions">
+              <button class="btn btn-primary" onclick="salvar()">✓ Salvar registro</button>
+              <button class="btn btn-ghost" onclick="limpar()">Limpar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="panel" id="panel-dash">
+
+      <!-- Vendas Hero -->
+      <div class="sec-title">Vendas realizadas</div>
+      <div class="vendas-hero" id="vendas-hero"></div>
+      <div class="vendas-cards" id="vendas-cards"></div>
+
+      <!-- Big numbers mensais -->
+      <div class="sec-title" id="bignums-title">Resumo do período</div>
+      <div class="bignums-row" id="bignums-row"></div>
+
+      <!-- Charts -->
+      <div class="sec-title" style="margin-top:24px">Distribuição</div>
+      <div class="charts3">
+        <div class="chart-card">
+          <div class="cc-title">Ações por tipo</div>
+          <div class="cc-sub">Atendimentos, treinos e vendas</div>
+          <div class="legend" id="leg-acao"></div>
+          <div class="cw h170"><canvas id="ch-acao" role="img" aria-label="Distribuição por tipo de ação"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">Temperatura dos clientes</div>
+          <div class="cc-sub">Situação dos atendimentos</div>
+          <div class="legend" id="leg-sit"></div>
+          <div class="cw h170"><canvas id="ch-sit" role="img" aria-label="Temperatura dos atendimentos"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">Produto</div>
+          <div class="cc-sub">Intento vs Amati</div>
+          <div class="legend" id="leg-prod"></div>
+          <div class="cw h170"><canvas id="ch-prod" role="img" aria-label="Distribuição por produto"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:6px">
+        <div class="chart-card">
+          <div class="cc-title">Atendimentos por imobiliária</div>
+          <div class="cc-sub">Top imobiliárias no período</div>
+          <div class="cw" id="imob-wrap"><canvas id="ch-imob" role="img" aria-label="Atendimentos por imobiliária"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">Fluxo realizado</div>
+          <div class="cc-sub">Nos atendimentos</div>
+          <div class="legend" id="leg-fluxo"></div>
+          <div class="cw h200"><canvas id="ch-fluxo" role="img" aria-label="Fluxo realizado"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANÁLISE MENSAL -->
+    <div class="panel" id="panel-mensal">
+      <div class="sec-title">Evolução mensal</div>
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="cc-title">Atendimentos, Treinamentos e Vendas por mês</div>
+        <div class="cc-sub">Visão comparativa</div>
+        <div class="legend" id="leg-mensal"></div>
+        <div class="cw h240"><canvas id="ch-mensal" role="img" aria-label="Evolução mensal"></canvas></div>
+      </div>
+      <div class="sec-title">Volume financeiro de vendas</div>
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="cc-title">Valor total de vendas por mês (R$)</div>
+        <div class="cc-sub">Receita gerada por período</div>
+        <div class="cw h200"><canvas id="ch-valor-mes" role="img" aria-label="Valor de vendas por mês"></canvas></div>
+      </div>
+      <div class="sec-title">Resumo por mês</div>
+      <div class="chart-card">
+        <div class="twrap"><table class="mensal-table" id="mensal-table"></table></div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="panel" id="panel-hist">
+      <div class="tcard">
+        <div class="search-bar">
+          <input class="sinput" id="sq" placeholder="🔍 Buscar cliente, imobiliária, observação..." oninput="renderHist()">
+          <select class="fsel" id="facao" onchange="renderHist()"><option value="">Todas as ações</option><option>Atendimento</option><option>Treinamento</option><option>Venda</option></select>
+          <select class="fsel" id="fprod" onchange="renderHist()"><option value="">Todos os produtos</option><option>Intento</option><option>Amati</option></select>
+          <select class="fsel" id="fsit" onchange="renderHist()"><option value="">Toda situação</option><option>Frio</option><option>Morno</option><option>Quente</option></select>
+        </div>
+        <div class="twrap">
+          <table>
+            <thead><tr><th>Data</th><th>Ação</th><th>Produto</th><th>Imobiliária</th><th>Corretor</th><th>Cliente</th><th>Situação</th><th>Fluxo</th><th>Valor</th><th>Próximos Passos</th><th></th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <div id="hempty" class="empty" style="display:none">Nenhum registro encontrado.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Data is now stored in Firebase Realtime Database
+let DB=[];
+let charts={};
+let mesSelecionado='todos';
+let prodSelecionado='todos';
+
+const DADOS_INICIAIS=[{"id": 1, "data": "2026-01-06", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Ritt", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 2, "data": "2026-01-07", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "LG", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 3, "data": "2026-01-08", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Next", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 4, "data": "2026-01-08", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Ritt", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 5, "data": "2026-01-10", "acao": "Venda", "produto": "Intento", "unidade": "1201", "imobiliaria": "Ritt", "corretor": "Vitor", "cliente": "João", "fluxo": "", "valor": 1399900.0, "situacao": "", "proximos_passos": "Contrato assinado e pago!", "observacoes": ""}, {"id": 6, "data": "2026-01-06", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "House", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente fez proposta em 2 unidades", "observacoes": "Comprou Yard"}, {"id": 7, "data": "2026-01-07", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Ritt", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente retornou com esposa que adorou", "observacoes": ""}, {"id": 8, "data": "2026-01-10", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Soberana", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "Casal gostou porém tem apto no Cambuí para vender primeiro", "observacoes": ""}, {"id": 10, "data": "2026-01-13", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "LG", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 11, "data": "2026-01-14", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "ZFF", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 12, "data": "2026-01-15", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Conect", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 13, "data": "2026-01-15", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Zero 19", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 14, "data": "2026-01-16", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "House", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 15, "data": "2026-01-14", "acao": "Atendimento", "produto": "Intento", "unidade": "601", "imobiliaria": "House", "corretor": "", "cliente": "Eliane Lopes", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "retornou com ex marido/Cliente não respondeu mais", "observacoes": "Não deu mais sequência"}, {"id": 16, "data": "2026-01-17", "acao": "Atendimento", "produto": "Intento", "unidade": "704", "imobiliaria": "House", "corretor": "", "cliente": "Frederico", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "gostaram, porém emcomeço de busca/Cliente vai retornar depois do carnaval", "observacoes": "Não deu mais sequência"}, {"id": 17, "data": "2026-01-21", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Zero 19", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 18, "data": "2026-01-21", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Conect", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 21, "data": "2026-02-03", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Aman", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 22, "data": "2026-01-30", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "LG", "corretor": "Gold", "cliente": "", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente gostou da 120m2 e vai falar com marido pois é investimento.", "observacoes": "Esposa fez o cliente declinar"}, {"id": 23, "data": "2026-01-31", "acao": "Atendimento", "produto": "Intento", "unidade": "401", "imobiliaria": "Aman", "corretor": "Deborah", "cliente": "Guilherme e Priscila", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente gostou da 401", "observacoes": "Mandei fluxo, mas querem guardar mais dinheiro. Cobrar quando decorado ficar pronto."}, {"id": 24, "data": "2026-01-31", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "LG", "corretor": "Gold", "cliente": "Ariane", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Gostaram muito, mas estão fazendo comparativo entre concorrentes por causa de planta. Legacy acharam quartos pequenos e gostarm area tecnica Yard.", "observacoes": "Compraram Grand Paysage"}, {"id": 25, "data": "2026-02-03", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Aman", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "Muita chuva, vamos remarcar", "observacoes": ""}, {"id": 26, "data": "2026-02-06", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "Outlet", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "visita na imob e no stand", "observacoes": ""}, {"id": 27, "data": "2026-02-02", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "Amati", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "treino com Nilton no empreendimento", "observacoes": ""}, {"id": 28, "data": "2026-02-07", "acao": "Atendimento", "produto": "Intento", "unidade": "601", "imobiliaria": "Cassia Adala", "corretor": "Cris", "cliente": "Ricardo e Laura", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Casal vendo prontos porém planta 120m2 encaixou bem.", "observacoes": "Cliente optou por prontos."}, {"id": 29, "data": "2026-02-07", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Novo Metro", "corretor": "Robson", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "Clientes gostaram e cobrar corretor de proposta.", "observacoes": "Cobrei corretor Robson - não participei atendimento - sem sequência"}, {"id": 30, "data": "2026-02-21", "acao": "Atendimento", "produto": "Intento", "unidade": "1501", "imobiliaria": "Next", "corretor": "Leandro", "cliente": "Asselma", "fluxo": "sim", "valor": 1526000.0, "situacao": "Frio", "proximos_passos": "Clientes gostaram porém precisam vender primeiro", "observacoes": "Cobrei corretor Leandro e clientes"}, {"id": 31, "data": "2026-02-14", "acao": "Atendimento", "produto": "Intento", "unidade": "401", "imobiliaria": "Culiman", "corretor": "Lúcio", "cliente": "Vitor Ferreira e Jaqueline", "fluxo": "sim", "valor": 1364000.0, "situacao": "Frio", "proximos_passos": "Casal de clientes gostou muito, precisam de 3 quartos pelo home office. Desenhamos fluxo e eles vão adequar ao que precisam.", "observacoes": "Clientes decidiram por vender apto deles primeiro"}, {"id": 32, "data": "2026-02-07", "acao": "Atendimento", "produto": "Intento", "unidade": "601", "imobiliaria": "Cassia Adala", "corretor": "Cris", "cliente": "Ricardo e Katia", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Casal vendo prontos porém planta 120m2 encaixou bem.", "observacoes": "Ficarão com prontos"}, {"id": 33, "data": "2026-02-03", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "House", "corretor": "Mari", "cliente": "Lucas", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente gostou muito e ia trazer esposa", "observacoes": "Esposa descobriu gravidez e vão esperar"}, {"id": 34, "data": "2026-01-27", "acao": "Atendimento", "produto": "Intento", "unidade": "203", "imobiliaria": "House", "corretor": "Mari", "cliente": "Eliana", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "mulher e filha gostaram do de 90m2 porém tem imóveis que precisam vender. Querem andar baixo.", "observacoes": "Cliente frio - Enviei fluxo da 203 e 501 - vai analisar todos os aptos do mercado."}, {"id": 35, "data": "2026-01-14", "acao": "Atendimento", "produto": "Intento", "unidade": "704", "imobiliaria": "House", "corretor": "Helena", "cliente": "Eliane Lopes", "fluxo": "sim", "valor": 1399900.0, "situacao": "Frio", "proximos_passos": "retornou com ex marido", "observacoes": "Sumiu"}, {"id": 36, "data": "2026-01-14", "acao": "Atendimento", "produto": "Intento", "unidade": "203", "imobiliaria": "House", "corretor": "Helena", "cliente": "Frederico", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "gostaram, porém começo de busca", "observacoes": "Não deu mais sequência"}, {"id": 40, "data": "2026-02-19", "acao": "Venda", "produto": "Amati", "unidade": "111B", "imobiliaria": "House", "corretor": "Gustavo", "cliente": "", "fluxo": "", "valor": 830000.0, "situacao": "", "proximos_passos": "", "observacoes": "Não tenho vículo venda House"}, {"id": 41, "data": "2026-02-25", "acao": "Venda", "produto": "Intento", "unidade": "401", "imobiliaria": "Isoinfinity", "corretor": "Jady", "cliente": "Ruas", "fluxo": "sim", "valor": 300000.0, "situacao": "Quente", "proximos_passos": "Migração efetivada 502 para 401", "observacoes": ""}, {"id": 42, "data": "2026-02-25", "acao": "Atendimento", "produto": "Intento", "unidade": "1903", "imobiliaria": "House", "corretor": "Gustavo", "cliente": "Sales", "fluxo": "sim", "valor": 0, "situacao": "Venda caída", "proximos_passos": "Cliente rodou cliente na 1903 com ar condicionado", "observacoes": "Cliente desistiu com contrato rodado"}, {"id": 43, "data": "2026-02-23", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Ritt", "corretor": "Claudia", "cliente": "Alessandro e Erika", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Casal se separando e ela pensa em migrar para uma unidade baixa 120m2", "observacoes": "Cliente rsolveu migrar para o Florae e está tratando direto com Carol"}, {"id": 44, "data": "2026-02-21", "acao": "Atendimento", "produto": "Intento", "unidade": "1501", "imobiliaria": "Next", "corretor": "Leandro", "cliente": "Asselma", "fluxo": "sim", "valor": 1526000.0, "situacao": "Frio", "proximos_passos": "Querem vender primeiro. Não farão negócio agora", "observacoes": "Cobrei Lenadro corretor em 15/04"}, {"id": 45, "data": "2026-02-11", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Borges", "corretor": "Simélia", "cliente": "Bruna e Alexssandro", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente gostou, mas já tem proposta no Santa Magarida. Corretora tentando reverter", "observacoes": "cliente optou pelo Santa Margarida. Corretora Siméia"}, {"id": 46, "data": "2026-02-11", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Silvia Borges", "corretor": "Silvia", "cliente": "Juliana", "fluxo": "sim", "valor": 0, "situacao": "Frio", "proximos_passos": "Cobrei Silvia 19/02 - corretora tentando agendar nova visita pois casal está com divergências. Sugeria sexta pela manhã.", "observacoes": "Corretora sem novidades com a cliente em 15/04"}, {"id": 47, "data": "2026-03-02", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Bevenuto", "corretor": "Vitor", "cliente": "Henrique e Anne", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Corretor disse que cliente gostou mais do Edge, mas que precisava colocar o terreno e ainda negociar valor. Poucas possibilidades", "observacoes": "cobrei corretor Vitor em 14/05 e sem novidades"}, {"id": 48, "data": "2026-03-03", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "House", "corretor": "Rodrigo", "cliente": "Nelson e Elita", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Não encaixa em nenhum de nossos podutos", "observacoes": ""}, {"id": 49, "data": "2026-03-06", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Zero 19", "corretor": "Ana Rosa", "cliente": "Maria Eduarda", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Clinete gostou, porém muito fria", "observacoes": "Cobrei Ana Rosa 14/05"}, {"id": 50, "data": "2026-03-07", "acao": "Atendimento", "produto": "Intento", "unidade": "1804", "imobiliaria": "Next", "corretor": "Carmen", "cliente": "Paulo, Angela e Amanda", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente visitou com João engenheiro, mas não gostaram da vista da Orozimbo, mas nada decidido", "observacoes": "Carmem acompanhando"}, {"id": 51, "data": "2026-03-07", "acao": "Atendimento", "produto": "Intento", "unidade": "604", "imobiliaria": "Conect", "corretor": "Fabiane", "cliente": "Iluska", "fluxo": "sim", "valor": 0, "situacao": "Venda caída", "proximos_passos": "Cliente rodou contrato para 604", "observacoes": "Cliente desistiu com contrato assinado"}, {"id": 52, "data": "2026-03-03", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "House", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 53, "data": "2026-02-06", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Next", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 54, "data": "2026-03-11", "acao": "Venda", "produto": "Intento", "unidade": "704", "imobiliaria": "Vide Imóveis", "corretor": "Neiva", "cliente": "Vanessa Gomes", "fluxo": "", "valor": 1350000.0, "situacao": "", "proximos_passos": "Contrato assinado e pago!", "observacoes": ""}, {"id": 55, "data": "2026-03-13", "acao": "Atendimento", "produto": "Intento", "unidade": "1804", "imobiliaria": "Conect", "corretor": "Regis", "cliente": "Marlene", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "mandei fluxo padrão da 1804 e 1004 para análise em casa", "observacoes": "corretor informou que cliente desistiu de comprar"}, {"id": 56, "data": "2026-03-14", "acao": "Atendimento", "produto": "Intento", "unidade": "904", "imobiliaria": "Zero 19", "corretor": "Krica", "cliente": "Roberta e Will", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Clientes gostaram, mas foram superficiais", "observacoes": "Cobrei corretora e ela informou que retornarão para o interior, mas preferiram Grand Paysage"}, {"id": 57, "data": "2026-03-14", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Zero 19", "corretor": "Gabriela", "cliente": "Vanessa Gomes", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente preferiu seguir com o Tay, pois preferiu questão de ventilação.", "observacoes": ""}, {"id": 58, "data": "2026-03-21", "acao": "Atendimento", "produto": "Intento", "unidade": "1102", "imobiliaria": "Vide Imóveis", "corretor": "Neiva", "cliente": "Mariana e Luiza", "fluxo": "sim", "valor": 1300000.0, "situacao": "Frio", "proximos_passos": "Enviei fluxo da 1102 e 304", "observacoes": "Cliente veio pela de 90m2 e fizemos fluxo das duas. Vendo prontos e gostou do Intento. Corretor disse que cliente vai optar por apto até 900k."}, {"id": 59, "data": "2026-02-24", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Ayres", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 60, "data": "2026-03-31", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "LG", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 61, "data": "2026-03-31", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "LG", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 63, "data": "2026-04-01", "acao": "Atendimento", "produto": "Amati", "unidade": "114A", "imobiliaria": "LG", "corretor": "Leal", "cliente": "Emerson e Valéria", "fluxo": "sim", "valor": 740000.0, "situacao": "", "proximos_passos": "Esperando assinar contrato", "observacoes": "Assinou pela DHG"}, {"id": 64, "data": "2026-04-02", "acao": "Atendimento", "produto": "Intento", "unidade": "601", "imobiliaria": "Ayres", "corretor": "André", "cliente": "Graziela e Rafael", "fluxo": "sim", "valor": 1380000.0, "situacao": "Frio", "proximos_passos": "Clientes gostaram mas queriam valor mais baixo e mesmo com negociação não encaixou", "observacoes": "Clientes optaram pela unidade mais baixa do Wyn pela localização"}, {"id": 65, "data": "2026-04-06", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "DHG", "corretor": "Eduardo", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 66, "data": "2026-04-06", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "Novo Metro", "corretor": "Patricia", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 67, "data": "2026-04-07", "acao": "Treinamento", "produto": "Amati", "unidade": "", "imobiliaria": "Outlet", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 68, "data": "2026-04-07", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Novo Metro", "corretor": "Marcelo", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Frio", "proximos_passos": "Cobrei corretor de uma posição", "observacoes": "não acompanhei atendimento"}, {"id": 69, "data": "2026-04-09", "acao": "Atendimento", "produto": "Intento", "unidade": "904", "imobiliaria": "Next", "corretor": "Ronald", "cliente": "Aline", "fluxo": "sim", "valor": 1400000.0, "situacao": "frio", "proximos_passos": "Cliente com muito dinheiro, pgto à vista, porém leve autismo e de dificil trato. Está pensando sobre tamanho e vendo várias opções.", "observacoes": "Cliente optou por Max House"}, {"id": 71, "data": "2026-04-06", "acao": "Atendimento", "produto": "Amati", "unidade": "111A", "imobiliaria": "Outlet", "corretor": "Eduilza", "cliente": "", "fluxo": "", "valor": 0, "situacao": "Morno", "proximos_passos": "cliente gostou da 111A e ficou de apresentar docs para proposta", "observacoes": "apareceu Bacen,aguardando dia 20 - consórico e flure."}, {"id": 72, "data": "2026-02-11", "acao": "Atendimento", "produto": "Intento", "unidade": "601", "imobiliaria": "Conect", "corretor": "Fabiana", "cliente": "Juliano", "fluxo": "sim", "valor": 1600000.0, "situacao": "Frio", "proximos_passos": "Cliente gostou da unidade de 120m2,apesar de vir pela de 90m2,  mas está vendo vários empreeendimentos.", "observacoes": "corretor acompanhando, cliente no começo"}, {"id": 73, "data": "2026-04-14", "acao": "Atendimento", "produto": "Intento", "unidade": "904", "imobiliaria": "NB Imob", "corretor": "Omar", "cliente": "Evanisi", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Clientes gostaram, mas estão no começo da busca e pediram para pensar em um fluxo", "observacoes": "Cobrei corretor 07/05 - cliente viajando"}, {"id": 76, "data": "2026-04-16", "acao": "Atendimento", "produto": "Intento", "unidade": "904", "imobiliaria": "LG", "corretor": "Leal", "cliente": "Thatiane", "fluxo": "sim", "valor": 1716187.14, "situacao": "Quente", "proximos_passos": "Cliente gostou e vai usar o apto em dação - aprovado por 450k.", "observacoes": "Imob fará reunião para fazer fluxo para proposta."}, {"id": 77, "data": "2026-04-16", "acao": "Treinamento", "produto": "intento", "unidade": "", "imobiliaria": "Caio Porto", "corretor": "Caio e Regiane", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 80, "data": "2026-04-16", "acao": "Atendimento", "produto": "Intento", "unidade": "120m2", "imobiliaria": "House", "corretor": "Laura", "cliente": "Felipe", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Laura atendeu on line e cliente vai destratar Plaenge e depois fechará intento", "observacoes": "Laura seguirá com cliente"}, {"id": 81, "data": "2026-05-02", "acao": "Atendimento", "produto": "Intento", "unidade": "304", "imobiliaria": "House", "corretor": "Gustavo", "cliente": "Liane", "fluxo": "sim", "valor": 1300000.0, "situacao": "Morno", "proximos_passos": "Casal de clientes gostou muito, mas limite é 1.3K - Guilherme aprovou", "observacoes": "Cobrando diariamente o Gustavo"}, {"id": 82, "data": "2026-05-02", "acao": "Atendimento", "produto": "Intento", "unidade": "502", "imobiliaria": "Aman", "corretor": "Paulo", "cliente": "Paulo", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Casal quer investir, mas quer colocar casa no Flamboyant em dação. Casa não aceitam", "observacoes": "Bild não aceitou a casa - sem movimentação de venda e cliente não quer sem..."}, {"id": 83, "data": "2026-05-01", "acao": "Venda", "produto": "Amati", "unidade": "114A", "imobiliaria": "DHG", "corretor": "Daniela", "cliente": "Emerson e Valéria", "fluxo": "sim", "valor": 740000.0, "situacao": "", "proximos_passos": "Cliente LG optou seguir com DHD - Comprou e pagou ato", "observacoes": "email de efetivação enviado"}, {"id": 84, "data": "2026-05-04", "acao": "Atendimento", "produto": "Intento", "unidade": "1804", "imobiliaria": "WBJesus", "corretor": "Watson", "cliente": "Gustavo", "fluxo": "sim", "valor": 1463852.0, "situacao": "Negociando", "proximos_passos": "Aprovou proposta - cliente não gostou da vista. Quer 1904 que está bloqueada. Precisamos aguardar.", "observacoes": ""}, {"id": 85, "data": "2026-04-04", "acao": "Atendimento", "produto": "Intento", "unidade": "1804/1004", "imobiliaria": "House", "corretor": "Rodrigo", "cliente": "Ludmila", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente gostou das unidades maiores, mostrei fluxos bases, mas ela não abriu o seu fluxo. Pediu para pensar", "observacoes": "corretor vai ligar sexta"}, {"id": 86, "data": "2026-05-05", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Zero 19", "corretor": "Bataglini", "cliente": "Isabela Fernandez", "fluxo": "sim", "valor": 0, "situacao": "Quente", "proximos_passos": "Investidora buscando oportunidades. Passamos duas unidades 1004 e 502 (personalizada)", "observacoes": "Valores aprovados por Guilherme, corretor falará com cliente"}, {"id": 87, "data": "2026-04-29", "acao": "Atendimento", "produto": "Intento", "unidade": "1601", "imobiliaria": "Zero 19", "corretor": "André", "cliente": "", "fluxo": "não", "valor": 0, "situacao": "Morno", "proximos_passos": "Cliente gostou da 1601, mas bloqueada. Ofertamos a 1804.", "observacoes": "Corretor está em cima pois cliente está vendo outras coisas."}, {"id": 88, "data": "2026-04-17", "acao": "Atendimento", "produto": "Intento", "unidade": "701", "imobiliaria": "Next", "corretor": "Luiz", "cliente": "Tadasi, Marisa e filha", "fluxo": "não", "valor": 0, "situacao": "Morno", "proximos_passos": "Cliente fez fluxo da 404 com quitação para setembro", "observacoes": "Cliente vai falar com gerente bancári e pediu para retornar segunda"}, {"id": 89, "data": "2026-05-07", "acao": "Treinamento", "produto": "Intento", "unidade": "", "imobiliaria": "Caio Porto", "corretor": "", "cliente": "", "fluxo": "", "valor": 0, "situacao": "", "proximos_passos": "", "observacoes": ""}, {"id": 90, "data": "2026-05-11", "acao": "Atendimento", "produto": "Intento", "unidade": "1703/1903", "imobiliaria": "LG", "corretor": "Regina", "cliente": "Luiz Tadeu", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente se interessou 90m2, porém achou janelas pequenas e não queria lavabo e office - não quer fazer obra. Foi taxativo não ter gostado.", "observacoes": ""}, {"id": 91, "data": "2026-05-12", "acao": "Atendimento", "produto": "Intento", "unidade": "1203", "imobiliaria": "Ayres", "corretor": "Sitta", "cliente": "Felipe", "fluxo": "sim", "valor": 0, "situacao": "Morno", "proximos_passos": "Cliente quer 90m2 e usar consórcio, dando 10% de ato. Cotando cartas de crédito.", "observacoes": "Subimos proposta e veio contra de 1.250.000,00. Corretora não consegue falar com cliente."}, {"id": 92, "data": "2026-05-13", "acao": "Atendimento", "produto": "Amati", "unidade": "122A", "imobiliaria": "My Brokers", "corretor": "Mateus", "cliente": "", "fluxo": "não", "valor": 0, "situacao": "morno", "proximos_passos": "Retornarão quinta dia 21/12 para escolherem unidade - possibilidade de consórcio Flure", "observacoes": ""}, {"id": 93, "data": "2026-05-13", "acao": "Atendimento", "produto": "Intento", "unidade": "502", "imobiliaria": "Aman", "corretor": "Julio", "cliente": "Willian e Bruno", "fluxo": "sim", "valor": 0, "situacao": "morno", "proximos_passos": "Apresentamos proposta de 470k no imóvel dele. Retornará quinta dia 21/05 com esposa", "observacoes": ""}, {"id": 94, "data": "2026-05-14", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Natal Nogueira", "corretor": "Mariana", "cliente": "Julio César", "fluxo": "não", "valor": 0, "situacao": "morno", "proximos_passos": "Enviado fluxo 1004 e 1104. Cliente vendo tudo, inclusive casas. Corretora acompanhando", "observacoes": ""}, {"id": 95, "data": "2026-05-14", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "", "corretor": "Guilherme Brianti", "cliente": "João Paulo", "fluxo": "não", "valor": 0, "situacao": "frio", "proximos_passos": "Enviei fluxos e ele disse que vai conversar com a sócia e se tiver interesse me avisa", "observacoes": ""}, {"id": 96, "data": "2026-05-16", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Pleno", "corretor": "Marcela", "cliente": "Victor", "fluxo": "não", "valor": 0, "situacao": "frio", "proximos_passos": "cliente já tinha comprado. Corretora queria vender outra, mas não vai comprar.", "observacoes": ""}, {"id": 97, "data": "2026-05-16", "acao": "Atendimento", "produto": "Intento", "unidade": "1004", "imobiliaria": "Zero 19", "corretor": "Aristeu", "cliente": "Rissiere", "fluxo": "sim", "valor": 0, "situacao": "quente", "proximos_passos": "Cliente fez proposta de pós chave - Tatiane seguindo.", "observacoes": ""}, {"id": 98, "data": "2026-05-16", "acao": "Atendimento", "produto": "Intento", "unidade": "1104", "imobiliaria": "Aman", "corretor": "Julio", "cliente": "Hebert e Fernanda", "fluxo": "sim", "valor": 0, "situacao": "Quente", "proximos_passos": "Clientes fizeram proposta de 1.2 e veio contra de .125 na unidade 304 - aguardando cliente.", "observacoes": ""}, {"id": 99, "data": "2026-05-16", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "", "corretor": "Jean", "cliente": "Anna", "fluxo": "não", "valor": 0, "situacao": "morno", "proximos_passos": "Clientes gostaram, poré vendo várias opções prontas.", "observacoes": ""}, {"id": 100, "data": "2026-05-16", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "Aman", "corretor": "Julio", "cliente": "Giovani e esposa", "fluxo": "não", "valor": 0, "situacao": "frio", "proximos_passos": "Cliente mais frio vendo várias opções", "observacoes": ""}, {"id": 101, "data": "2026-05-16", "acao": "Atendimento", "produto": "Intento", "unidade": "1701", "imobiliaria": "", "corretor": "Marllon", "cliente": "Cristian e família", "fluxo": "sim", "valor": 0, "situacao": "morno", "proximos_passos": "Cliente pensa em dação com apto no Blend para um 120m2 alto - passamos fluxo com 680k no Blend e valor de tabela", "observacoes": ""}, {"id": 102, "data": "2026-05-16", "acao": "Atendimento", "produto": "Amati", "unidade": "44B", "imobiliaria": "Outlet", "corretor": "Adriana", "cliente": "André e Gabriela", "fluxo": "sim", "valor": 744000.0, "situacao": "Quente", "proximos_passos": "Clientes mandaram documentação para simulação - 44B. Agora, estão achando parcela cara.", "observacoes": ""}, {"id": 103, "data": "2026-05-16", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Outlet", "corretor": "Alessandro", "cliente": "", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Gostaram, mas frio", "observacoes": ""}, {"id": 104, "data": "2026-05-19", "acao": "Atendimento", "produto": "Intento", "unidade": "", "imobiliaria": "", "corretor": "Nathalia", "cliente": "Maria Guilhermina", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Cliente monossilabica, menina nova e quer planta de 90m2. Corretora não quis fazer fluxo pois estavam indo para a imob conversar lá.", "observacoes": ""}, {"id": 105, "data": "2026-05-19", "acao": "Atendimento", "produto": "Amati", "unidade": "", "imobiliaria": "Outlet", "corretor": "Alessandro", "cliente": "", "fluxo": "não", "valor": 0, "situacao": "Frio", "proximos_passos": "Gostaram, mas frio", "observacoes": ""}, {"id": 106, "data": "2026-05-20", "acao": "Atendimento", "produto": "Intento", "unidade": "1104", "imobiliaria": "Zero 19", "corretor": "Rosana", "cliente": "Jurandyr", "fluxo": "sim", "valor": 1400000.0, "situacao": "Morno", "proximos_passos": "Cliente gostou de 120m2 e fez proposta com permuta de 1.4 milhões", "observacoes": "Cliente quer 750k no imovel dele - solicitei matricula"}, {"id": 107, "data": "2026-05-20", "acao": "Atendimento", "produto": "Intento", "unidade": "203 e 304", "imobiliaria": "Ayres", "corretor": "Sitta", "cliente": "", "fluxo": "sim", "valor": 0, "situacao": "Morno", "proximos_passos": "Clinete pediu 500k de ato em valor à vista.passei fluxo da 203 e 304. Vai ver outros imóveis amanhã e corretora vai tentar fechar após...", "observacoes": ""}];
+
+// ── Sync status indicator ──────────────────────────────
+function setSyncStatus(status) {
+  // status: 'ok' | 'saving' | 'error' | 'offline'
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-lbl');
+  if (!dot) return;
+  const map = {
+    ok:      { color: '#1E7A3E', text: 'Sincronizado' },
+    saving:  { color: '#B45309', text: 'Salvando...'  },
+    error:   { color: '#B91C1C', text: 'Erro'         },
+    offline: { color: '#94A3B8', text: 'Offline'      },
+  };
+  const s = map[status] || map.offline;
+  dot.style.background = s.color;
+  lbl.textContent = s.text;
+}
+
+function init(){
+  setDate();
+  // Show loading state
+  setSyncStatus('saving');
+
+  function startFirebase() {
+    if (!window._firebaseReady) {
+      setTimeout(startFirebase, 100);
+      return;
+    }
+    // Listen for realtime updates
+    window._fbListen(function(arr) {
+      DB = arr;
+      setSyncStatus('ok');
+      buildMesPills();
+      // Refresh current panel
+      const active = document.querySelector('.panel.active');
+      if (active && active.id === 'panel-dash')   renderDash();
+      if (active && active.id === 'panel-mensal') renderMensal();
+      if (active && active.id === 'panel-hist')   renderHist();
+    });
+  }
+  startFirebase();
+}
+
+// save() now writes to Firebase
+async function save(record) {
+  setSyncStatus('saving');
+  try {
+    await window._fbPush(record);
+    setSyncStatus('ok');
+  } catch(e) {
+    console.error(e);
+    setSyncStatus('error');
+    toast('Erro ao salvar no Firebase', true);
+  }
+}
+function setDate(){const t=new Date();document.getElementById('f-data').value=t.toISOString().split('T')[0];}
+
+// ====== MÊS PILLS ======
+function getMeses(){
+  const s=new Set();
+  DB.forEach(r=>{if(r.data)s.add(r.data.slice(0,7));});
+  return [...s].sort();
+}
+const NOMES_MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function nomeMes(m){const[y,mo]=m.split('-');return NOMES_MES[+mo-1]+'/'+y.slice(2);}
+
+function buildMesPills(){
+  const meses=getMeses();
+  const container=document.getElementById('mes-pills');
+  container.innerHTML=`<button class="mes-pill active" onclick="filtrarMes('todos')">Todos</button>`
+    +meses.map(m=>`<button class="mes-pill" onclick="filtrarMes('${m}')">${nomeMes(m)}</button>`).join('');
+}
+
+function filtrarMes(mes){
+  mesSelecionado=mes;
+  document.querySelectorAll('#mes-pills .mes-pill').forEach(p=>{
+    p.classList.toggle('active',
+      (mes==='todos'&&p.textContent==='Todos')||p.textContent===nomeMes(mes)
+    );
+  });
+  renderDash();
+}
+
+function filtrarProd(prod){
+  prodSelecionado=prod;
+  document.querySelectorAll('#prod-pills .mes-pill').forEach(p=>{
+    p.classList.toggle('active', p.textContent===prod||(prod==='todos'&&p.textContent==='Todos'));
+  });
+  renderDash();
+}
+
+function dadosFiltrados(){
+  return DB.filter(r=>{
+    const okMes = mesSelecionado==='todos'||(r.data&&r.data.startsWith(mesSelecionado));
+    const okProd = prodSelecionado==='todos'||r.produto===prodSelecionado;
+    return okMes && okProd;
+  });
+}
+
+// ====== NAV ======
+const TITLES={novo:'Novo registro',dash:'Dashboard',mensal:'Análise mensal',hist:'Histórico de registros'};
+function nav(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  ['novo','dash','mensal','hist'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
+  document.getElementById('pg-title').textContent=TITLES[id]||'';
+  // Mostra/esconde filtro
+  document.getElementById('filter-bar').className='filter-bar'+(id==='dash'?'':' filter-bar-hidden');
+  if(id==='dash'){buildMesPills();renderDash();}
+  if(id==='mensal')renderMensal();
+  if(id==='hist')renderHist();
+}
+
+function toast(msg,err){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.background=err?'#B91C1C':'#0D1829';
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+function salvar(){
+  const data=document.getElementById('f-data').value;
+  const acao=document.getElementById('f-acao').value;
+  const produto=document.getElementById('f-produto').value;
+  const imob=document.getElementById('f-imob').value.trim();
+  if(!data||!acao||!produto||!imob){toast('Preencha data, ação, produto e imobiliária',true);return;}
+  const record = {
+    id: Date.now(), data, acao, produto, imobiliaria: imob,
+    corretor:  document.getElementById('f-corretor').value.trim(),
+    cliente:   document.getElementById('f-cliente').value.trim(),
+    unidade:   document.getElementById('f-unidade').value.trim(),
+    valor:     parseFloat(document.getElementById('f-valor').value)||0,
+    fluxo:     document.getElementById('f-fluxo').value,
+    situacao:  document.getElementById('f-situacao').value,
+    proximos_passos: document.getElementById('f-passos').value.trim(),
+    observacoes:     document.getElementById('f-obs').value.trim(),
+  };
+  save(record);
+  limpar();
+  toast('✓ Registro salvo!');
+}
+function limpar(){
+  ['f-acao','f-produto','f-imob','f-corretor','f-cliente','f-unidade','f-valor','f-fluxo','f-situacao','f-passos','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  setDate();
+}
+function del(id, fbKey){
+  if(!confirm('Remover este registro?'))return;
+  if(fbKey && window._fbRemove) {
+    setSyncStatus('saving');
+    window._fbRemove(fbKey)
+      .then(()=>{ setSyncStatus('ok'); toast('Registro removido.'); })
+      .catch(()=>{ setSyncStatus('error'); toast('Erro ao remover', true); });
+  }
+}
+
+// helpers
+function fmtData(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
+function fmtBRL(v){if(!v||v===0)return'—';return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function fmtBRLk(v){if(!v)return'R$ 0';if(v>=1000000)return'R$ '+(v/1000000).toFixed(2).replace('.',',')+'M';if(v>=1000)return'R$ '+(v/1000).toFixed(0)+'k';return'R$ '+v;}
+function badgeAcao(a){const m={Atendimento:'ba',Treinamento:'bt',Venda:'bv'};return`<span class="badge ${m[a]||'ba'}">${a}</span>`;}
+function badgeSit(s){if(!s)return'<span style="color:var(--txt3);font-size:11px">—</span>';const m={Frio:'sf',Morno:'sm',Quente:'sq'};return`<span class="badge ${m[s]||''}">${s}</span>`;}
+function badgeFluxo(f){if(!f)return'<span style="color:var(--txt3);font-size:11px">—</span>';return f==='sim'?'<span class="badge bsim">Sim</span>':'<span class="badge bnao">Não</span>';}
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function mkChart(id,type,data,opts){
+  destroyChart(id);
+  charts[id]=new Chart(document.getElementById(id),{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...opts}});
+}
+
+// ====== DASHBOARD ======
+function renderDash(){
+  const dados=dadosFiltrados();
+  const atend=dados.filter(r=>r.acao==='Atendimento');
+  const trein=dados.filter(r=>r.acao==='Treinamento');
+  const vendas=dados.filter(r=>r.acao==='Venda');
+  const vendasValor=vendas.filter(r=>r.valor>0);
+  const totalVGV=vendasValor.reduce((s,r)=>s+(r.valor||0),0);
+  const ticketMedio=vendasValor.length?totalVGV/vendasValor.length:0;
+  const maiorVenda=vendasValor.length?Math.max(...vendasValor.map(r=>r.valor)):0;
+  const quentes=atend.filter(r=>r.situacao==='Quente').length;
+
+  const periodoLabel=mesSelecionado==='todos'?'Todos os períodos':nomeMes(mesSelecionado);
+
+  // Vendas hero
+  document.getElementById('vendas-hero').innerHTML=`
+    <div class="vh-item"><div class="vh-label">VGV total</div><div class="vh-val">${fmtBRLk(totalVGV)}</div><div class="vh-sub">${periodoLabel}</div></div>
+    <div class="vh-divider"></div>
+    <div class="vh-item"><div class="vh-label">Ticket médio</div><div class="vh-val">${fmtBRLk(ticketMedio)}</div><div class="vh-sub">Por venda realizada</div></div>
+    <div class="vh-divider"></div>
+    <div class="vh-item"><div class="vh-label">Maior venda</div><div class="vh-val">${fmtBRLk(maiorVenda)}</div><div class="vh-sub">Valor mais alto</div></div>
+    <div class="vh-badge"><div class="vh-badge-num">${vendas.length}</div><div class="vh-badge-lbl">vendas totais</div></div>
+  `;
+
+  // Cards de venda filtrados
+  const vendasOrd=[...vendasValor].sort((a,b)=>b.valor-a.valor);
+  const semValor=vendas.filter(r=>!r.valor||r.valor===0);
+  document.getElementById('vendas-cards').innerHTML=
+    vendasOrd.map(r=>`<div class="venda-card"><div class="vc-val">${fmtBRL(r.valor)}</div><div class="vc-imob">${r.imobiliaria||'—'}</div>${r.unidade?`<div class="vc-meta">Unidade ${r.unidade}</div>`:''}<div class="vc-meta">${fmtData(r.data)} · ${r.produto||''}</div></div>`).join('')
+    +semValor.map(r=>`<div class="venda-card" style="opacity:.55"><div class="vc-val" style="color:var(--txt3);font-size:13px">Valor não informado</div><div class="vc-imob">${r.imobiliaria||'—'}</div><div class="vc-meta">${fmtData(r.data)} · ${r.produto||''}</div></div>`).join('');
+
+  // Big numbers do período
+  const totalAcoes=atend.length+trein.length+vendas.length;
+  document.getElementById('bignums-title').textContent=`Resumo — ${periodoLabel}`;
+  document.getElementById('bignums-row').innerHTML=`
+    <div class="bignum c-blue">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div class="bn-label">Atendimentos</div>
+      <div class="bn-val">${atend.length}</div>
+      <div class="bn-sub">${quentes} clientes quentes</div>
+    </div>
+    <div class="bignum c-sky">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div class="bn-label">Treinamentos</div>
+      <div class="bn-val">${trein.length}</div>
+      <div class="bn-sub">Imobiliárias treinadas</div>
+    </div>
+    <div class="bignum c-green">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" stroke="currentColor"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <div class="bn-label">Vendas realizadas</div>
+      <div class="bn-val">${vendas.length}</div>
+      <div class="bn-sub">${fmtBRLk(totalVGV)} em VGV</div>
+    </div>
+    <div class="bignum c-purple">
+      <div class="bn-icon"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="bn-label">Total de ações</div>
+      <div class="bn-val">${totalAcoes}</div>
+      <div class="bn-sub">${periodoLabel}</div>
+    </div>
+  `;
+
+  // Pizza ação
+  const aL=['Atendimento','Treinamento','Venda'],aC=['#E8611A','#B45309','#0F7938'];
+  const aV=aL.map(l=>dados.filter(r=>r.acao===l).length);
+  document.getElementById('leg-acao').innerHTML=aL.map((l,i)=>`<div class="li"><div class="ld" style="background:${aC[i]}"></div>${l} (${aV[i]})</div>`).join('');
+  mkChart('ch-acao','doughnut',{labels:aL,datasets:[{data:aV,backgroundColor:aC,borderWidth:0,spacing:2}]},{cutout:'58%'});
+
+  // Pizza situação
+  const sL=['Frio','Morno','Quente'],sC=['#3B82F6','#F59E0B','#0F7938'];
+  const sV=sL.map(l=>atend.filter(r=>r.situacao===l).length);
+  document.getElementById('leg-sit').innerHTML=sL.map((l,i)=>`<div class="li"><div class="ld" style="background:${sC[i]}"></div>${l} (${sV[i]})</div>`).join('');
+  mkChart('ch-sit','doughnut',{labels:sL,datasets:[{data:sV,backgroundColor:sC,borderWidth:0,spacing:2}]},{cutout:'58%'});
+
+  // Pizza produto
+  const pL=['Intento','Amati'],pC=['#E8611A','#0891B2'];
+  const pV=pL.map(l=>dados.filter(r=>r.produto===l).length);
+  document.getElementById('leg-prod').innerHTML=pL.map((l,i)=>`<div class="li"><div class="ld" style="background:${pC[i]}"></div>${l} (${pV[i]})</div>`).join('');
+  mkChart('ch-prod','doughnut',{labels:pL,datasets:[{data:pV,backgroundColor:pC,borderWidth:0,spacing:2}]},{cutout:'58%'});
+
+  // Barras imobiliária
+  const ic={};
+  atend.forEach(r=>{if(r.imobiliaria)ic[r.imobiliaria]=(ic[r.imobiliaria]||0)+1;});
+  const is=Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const iH=Math.max(140,is.length*34+60);
+  document.getElementById('imob-wrap').style.height=iH+'px';
+  mkChart('ch-imob','bar',
+    {labels:is.map(x=>x[0]),datasets:[{data:is.map(x=>x[1]),backgroundColor:'#E8611A',borderRadius:5,borderWidth:0}]},
+    {indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{stepSize:1,color:'#94A3B8',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#4B5674',font:{size:11}},grid:{display:false}}}}
+  );
+
+  // Pizza fluxo
+  const fSim=atend.filter(r=>r.fluxo==='sim').length;
+  const fNao=atend.filter(r=>r.fluxo==='não').length;
+  const fN=atend.length-fSim-fNao;
+  const fL=['Sim','Não','Sem info'],fC=['#E8611A','#B91C1C','#CBD5E1'],fV=[fSim,fNao,fN];
+  document.getElementById('leg-fluxo').innerHTML=fL.map((l,i)=>`<div class="li"><div class="ld" style="background:${fC[i]}"></div>${l} (${fV[i]})</div>`).join('');
+  mkChart('ch-fluxo','doughnut',{labels:fL,datasets:[{data:fV,backgroundColor:fC,borderWidth:0,spacing:2}]},{cutout:'58%'});
+}
+
+// ====== ANÁLISE MENSAL ======
+function renderMensal(){
+  const meses=getMeses();
+  const atendPM=meses.map(m=>DB.filter(r=>r.acao==='Atendimento'&&r.data&&r.data.startsWith(m)).length);
+  const treinPM=meses.map(m=>DB.filter(r=>r.acao==='Treinamento'&&r.data&&r.data.startsWith(m)).length);
+  const vendasPM=meses.map(m=>DB.filter(r=>r.acao==='Venda'&&r.data&&r.data.startsWith(m)).length);
+  const valorPM=meses.map(m=>DB.filter(r=>r.acao==='Venda'&&r.data&&r.data.startsWith(m)).reduce((s,r)=>s+(r.valor||0),0));
+  const labels=meses.map(nomeMes);
+
+  document.getElementById('leg-mensal').innerHTML=`
+    <div class="li"><div class="ld" style="background:#E8611A"></div>Atendimentos</div>
+    <div class="li"><div class="ld" style="background:#B45309"></div>Treinamentos</div>
+    <div class="li"><div class="ld" style="background:#0F7938"></div>Vendas</div>
+  `;
+  destroyChart('ch-mensal');
+  charts['ch-mensal']=new Chart(document.getElementById('ch-mensal'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Atendimentos',data:atendPM,borderColor:'#E8611A',backgroundColor:'rgba(232,97,26,.07)',fill:true,tension:.4,pointBackgroundColor:'#E8611A',pointRadius:5,borderWidth:2.5},
+      {label:'Treinamentos',data:treinPM,borderColor:'#B45309',backgroundColor:'rgba(180,83,9,.05)',fill:true,tension:.4,pointBackgroundColor:'#B45309',pointRadius:5,borderWidth:2.5},
+      {label:'Vendas',data:vendasPM,borderColor:'#0F7938',backgroundColor:'rgba(15,121,56,.05)',fill:true,tension:.4,pointBackgroundColor:'#0F7938',pointRadius:5,borderWidth:2.5,pointStyle:'star'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#94A3B8',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{color:'#4B5674',font:{size:11}},grid:{display:false}}}}
+  });
+
+  const maxValor=Math.max(...valorPM,1);
+  destroyChart('ch-valor-mes');
+  charts['ch-valor-mes']=new Chart(document.getElementById('ch-valor-mes'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Valor de vendas',data:valorPM,backgroundColor:valorPM.map(v=>v===maxValor&&v>0?'#0F7938':'rgba(15,121,56,.38)'),borderRadius:7,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtBRL(ctx.raw)}}},scales:{y:{beginAtZero:true,ticks:{color:'#94A3B8',font:{size:11},callback:v=>fmtBRLk(v)},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{color:'#4B5674',font:{size:11}},grid:{display:false}}}}
+  });
+
+  const maxA=Math.max(...atendPM,1);
+
+  function varPct(curr, prev){
+    if(prev===null||prev===undefined) return '';
+    if(prev===0&&curr===0) return '<span style="font-size:10px;color:var(--txt3)">—</span>';
+    if(prev===0) return '<span style="font-size:10px;font-weight:600;color:var(--green)">novo</span>';
+    const p=Math.round(((curr-prev)/prev)*100);
+    if(p===0) return '<span style="font-size:10px;color:var(--txt3)">0%</span>';
+    const up=p>0;
+    const arrow=up?'▲':'▼';
+    const color=up?'var(--green)':'var(--red)';
+    return `<span style="font-size:10px;font-weight:600;color:${color}">${arrow} ${Math.abs(p)}%</span>`;
+  }
+
+  const thead='<thead><tr>'
+    +'<th>Mês</th>'
+    +'<th>Atendimentos<br><span style="font-size:9px;font-weight:400;color:var(--txt3);letter-spacing:.2px">vs mês anterior</span></th>'
+    +'<th>Treinamentos<br><span style="font-size:9px;font-weight:400;color:var(--txt3)">vs mês anterior</span></th>'
+    +'<th>Vendas<br><span style="font-size:9px;font-weight:400;color:var(--txt3)">vs mês anterior</span></th>'
+    +'<th>VGV (R$)<br><span style="font-size:9px;font-weight:400;color:var(--txt3)">vs mês anterior</span></th>'
+    +'<th>Total ações<br><span style="font-size:9px;font-weight:400;color:var(--txt3)">vs mês anterior</span></th>'
+    +'</tr></thead>';
+
+  const tbody='<tbody>'+meses.map((m,i)=>{
+    const tot=atendPM[i]+treinPM[i]+vendasPM[i];
+    const pct=Math.round((atendPM[i]/maxA)*100);
+    const prevA=i>0?atendPM[i-1]:null;
+    const prevT=i>0?treinPM[i-1]:null;
+    const prevV=i>0?vendasPM[i-1]:null;
+    const prevVGV=i>0?valorPM[i-1]:null;
+    const prevTot=i>0?(atendPM[i-1]+treinPM[i-1]+vendasPM[i-1]):null;
+    return`<tr>
+      <td><span style="font-size:12px;font-weight:600;color:var(--txt);min-width:64px;display:inline-block">${nomeMes(m)}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="num-atend">${atendPM[i]}</span>
+          <div class="bar-mini" style="width:50px"><div class="bar-mini-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div style="margin-top:3px">${varPct(atendPM[i],prevA)}</div>
+      </td>
+      <td>
+        <span class="num-trein">${treinPM[i]}</span>
+        <div style="margin-top:3px">${varPct(treinPM[i],prevT)}</div>
+      </td>
+      <td>
+        <span class="num-venda">${vendasPM[i]}</span>
+        <div style="margin-top:3px">${varPct(vendasPM[i],prevV)}</div>
+      </td>
+      <td>
+        <div style="font-size:12px;font-weight:600;color:${valorPM[i]>0?'var(--green)':'var(--txt3)'}">${valorPM[i]>0?fmtBRL(valorPM[i]):'—'}</div>
+        <div style="margin-top:3px">${varPct(valorPM[i],prevVGV)}</div>
+      </td>
+      <td>
+        <span style="font-size:13px;font-weight:700;color:var(--txt)">${tot}</span>
+        <div style="margin-top:3px">${varPct(tot,prevTot)}</div>
+      </td>
+    </tr>`;
+  }).join('')+'</tbody>';
+  document.getElementById('mensal-table').innerHTML=thead+tbody;
+}
+
+// ====== HISTÓRICO ======
+function renderHist(){
+  const q=(document.getElementById('sq').value||'').toLowerCase();
+  const fa=document.getElementById('facao').value;
+  const fp=document.getElementById('fprod').value;
+  const fs=document.getElementById('fsit').value;
+  let lista=[...DB].reverse().filter(r=>{
+    const txt=(r.imobiliaria+r.cliente+r.corretor+r.proximos_passos+r.observacoes).toLowerCase();
+    if(q&&!txt.includes(q))return false;
+    if(fa&&r.acao!==fa)return false;
+    if(fp&&r.produto!==fp)return false;
+    if(fs&&r.situacao!==fs)return false;
+    return true;
+  });
+  const tbody=document.getElementById('tbody');
+  const empty=document.getElementById('hempty');
+  if(!lista.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=lista.map(r=>`<tr>
+    <td class="tdate">${fmtData(r.data)}</td><td>${badgeAcao(r.acao)}</td>
+    <td><span style="font-size:11px;color:var(--txt2)">${r.produto||'—'}</span></td>
+    <td><div class="tn">${r.imobiliaria||'—'}</div></td>
+    <td><div style="font-size:11px;color:var(--txt2)">${r.corretor||'—'}</div></td>
+    <td><div class="tn" style="font-size:11px">${r.cliente||'—'}</div>${r.unidade?`<div class="ts">Un. ${r.unidade}</div>`:''}</td>
+    <td>${badgeSit(r.situacao)}</td><td>${badgeFluxo(r.fluxo)}</td>
+    <td style="font-size:11px;white-space:nowrap;color:${r.valor>0?'var(--green)':'var(--txt3)'}">${fmtBRL(r.valor)}</td>
+    <td class="tobs" title="${r.proximos_passos||''}">${r.proximos_passos||'—'}</td>
+    <td><button class="delbtn" onclick="del(${r.id},'${r._fbKey||''}')" style="background:none;border:none;cursor:pointer;color:var(--txt3);padding:3px 6px;border-radius:6px;font-size:14px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--txt3)'">✕</button></td>
+  </tr>`).join('');
+}
+
+// ====== CSV ======
+function exportCSV(){
+  if(!DB.length){toast('Sem dados',true);return;}
+  const h='Data,Ação,Produto,Unidade,Imobiliária,Corretor,Cliente,Fluxo,Valor,Situação,Próximos Passos,Observações';
+  const rows=DB.map(r=>[r.data,r.acao,r.produto,r.unidade||'',`"${r.imobiliaria||''}"`,`"${r.corretor||''}"`,`"${r.cliente||''}"`,r.fluxo||'',r.valor||0,r.situacao||'',`"${(r.proximos_passos||'').replace(/"/g,'""')}"`,`"${(r.observacoes||'').replace(/"/g,'""')}"`].join(','));
+  const csv=[h,...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='atendimentos_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();toast('CSV exportado!');
+}
+
+init();
+
+// ═══════════════════════════════════════════════
+//  GERAÇÃO DE PDF — Dashboard + Análise Mensal
+// ═══════════════════════════════════════════════
+const LOGO_B64 = "data:image/png;base64,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";
+
+function gerarPDF() {
+  const btn = document.getElementById('btn-pdf');
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+      const PW = 210, PH = 297;
+      const ML = 14, MR = 14, CW = PW - ML - MR;
+
+      // Palette
+      const OR     = [232, 97,  26];
+      const OR_D   = [196, 78,  14];
+      const OR_L   = [254, 243, 236];
+      const OR_M   = [251, 207, 176];
+      const GR     = [30,  122, 62];
+      const GR_L   = [237, 250, 243];
+      const SKY    = [27,  95,  168];
+      const SKY_L  = [238, 245, 255];
+      const PRP    = [109, 40,  217];
+      const PRP_L  = [245, 243, 255];
+      const AMB    = [180, 83,  9];
+      const AMB_L  = [255, 251, 235];
+      const RED    = [185, 28,  28];
+      const TXT    = [26,  10,  2];
+      const TXT2   = [92,  61,  42];
+      const TXT3   = [160, 120, 96];
+      const BDR    = [237, 217, 204];
+      const LGRAY  = [245, 237, 230];
+      const WHITE  = [255, 255, 255];
+      const GR_M   = [167, 243, 208];
+      const AMB_M  = [253, 230, 138];
+
+      const MNAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      function nm(m) { const [y,mo]=m.split('-'); return MNAMES[+mo-1]+'/'+y.slice(2); }
+      function brlk(v) {
+        if(!v) return 'R$ 0';
+        if(v>=1000000) return 'R$ '+(v/1000000).toFixed(2).replace('.',',')+'M';
+        if(v>=1000) return 'R$ '+(v/1000).toFixed(0)+'k';
+        return 'R$ '+Math.round(v);
+      }
+      function brl(v) {
+        if(!v||v===0) return '—';
+        return 'R$ '+Math.round(v).toLocaleString('pt-BR');
+      }
+      function vpct(c,p) {
+        if(p===null||p===undefined) return '';
+        if(p===0&&c===0) return '—';
+        if(p===0) return 'novo';
+        const d=Math.round(((c-p)/p)*100);
+        return d===0?'0%':(d>0?'▲ ':'▼ ')+Math.abs(d)+'%';
+      }
+      function rgb(arr) { return arr.map(x=>x/255); }
+      function setFill(c) { doc.setFillColor(c[0],c[1],c[2]); }
+      function setDraw(c) { doc.setDrawColor(c[0],c[1],c[2]); }
+      function setTxt(c)  { doc.setTextColor(c[0],c[1],c[2]); }
+
+      // Data
+      const atend  = DB.filter(r=>r.acao==='Atendimento');
+      const trein  = DB.filter(r=>r.acao==='Treinamento');
+      const vendas = DB.filter(r=>r.acao==='Venda');
+      const vval   = vendas.filter(r=>r.valor>0);
+      const vgv    = vval.reduce((s,r)=>s+r.valor,0);
+      const ticket = vval.length?vgv/vval.length:0;
+      const maior  = vval.length?Math.max(...vval.map(r=>r.valor)):0;
+      const quentes= atend.filter(r=>r.situacao==='Quente').length;
+
+      const meses  = [...new Set(DB.filter(r=>r.data).map(r=>r.data.slice(0,7)))].sort();
+      const pm=(acao,m)=>DB.filter(r=>r.acao===acao&&r.data&&r.data.startsWith(m)).length;
+      const pv=m=>DB.filter(r=>r.acao==='Venda'&&r.data&&r.data.startsWith(m)).reduce((s,r)=>s+(r.valor||0),0);
+      const APM=meses.map(m=>pm('Atendimento',m));
+      const TPM=meses.map(m=>pm('Treinamento',m));
+      const VPM=meses.map(m=>pm('Venda',m));
+      const VALPM=meses.map(m=>pv(m));
+      const TOTPM=meses.map((_,i)=>APM[i]+TPM[i]+VPM[i]);
+
+      // ── Header ──────────────────────────────────────────
+      function drawHeader(pageNum) {
+        setFill(OR); doc.rect(0,0,PW,16,'F');
+        doc.addImage(LOGO_B64,'PNG',ML,1.5,11,11);
+        setTxt(WHITE);
+        doc.setFont('helvetica','bold'); doc.setFontSize(11);
+        doc.text('Gerenciamento de Parcerias', ML+13, 8);
+        doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+        setTxt(OR_M);
+        doc.text('Carla Dias  ·  Bild Desenvolvimento Imobiliário', ML+13, 13);
+        const d=new Date(); const ds=d.toLocaleDateString('pt-BR');
+        doc.text(ds, PW-ML, 10, {align:'right'});
+        // footer
+        setFill(BDR); doc.rect(0,PH-7,PW,7,'F');
+        setTxt(TXT2); doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+        doc.text('Bild Desenvolvimento Imobiliário  ·  Gerenciamento de Parcerias – Carla Dias', ML, PH-3);
+        doc.text('Página '+pageNum, PW-ML, PH-3, {align:'right'});
+      }
+
+      // ── Section title ────────────────────────────────────
+      function secTitle(txt, y) {
+        setFill(OR); doc.rect(ML, y, CW, 0.5, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(10); setTxt(OR);
+        doc.text(txt, ML, y+5.5);
+        return y+8;
+      }
+
+      // ── Rounded rect ────────────────────────────────────
+      function rrect(x,y,w,h,r,fill,stroke) {
+        if(fill) { setFill(fill); doc.roundedRect(x,y,w,h,r,r,'F'); }
+        if(stroke) { setDraw(stroke); doc.roundedRect(x,y,w,h,r,r,'S'); }
+      }
+      function hexFill(hex) {
+        const h=hex.replace('#','');
+        const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+        doc.setFillColor(r,g,b);
+      }
+      function hexDraw(hex) {
+        const h=hex.replace('#','');
+        const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+        doc.setDrawColor(r,g,b);
+      }
+      function hexTxt(hex) {
+        const h=hex.replace('#','');
+        const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+        doc.setTextColor(r,g,b);
+      }
+
+      // ── Pie chart (canvas→image) ─────────────────────────
+      function pieImg(vals, clrs, size) {
+        const c = document.createElement('canvas');
+        c.width=size; c.height=size;
+        const ctx=c.getContext('2d');
+        const total=vals.reduce((a,b)=>a+b,0)||1;
+        let start=0;
+        clrs.forEach((clr,i)=>{
+          const slice=(vals[i]||0.001)/total*Math.PI*2;
+          ctx.beginPath();
+          ctx.moveTo(size/2,size/2);
+          ctx.arc(size/2,size/2,size/2-2,start,start+slice);
+          ctx.closePath();
+          ctx.fillStyle=clr;
+          ctx.fill();
+          ctx.strokeStyle='#fff';
+          ctx.lineWidth=1.5;
+          ctx.stroke();
+          start+=slice;
+        });
+        return c.toDataURL('image/png');
+      }
+
+      // ── Bar chart (canvas→image) ─────────────────────────
+      function barImg(vals, labels, colors, w, h, horizontal) {
+        const c=document.createElement('canvas');
+        c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h);
+        const max=Math.max(...vals,1);
+        const pad=6;
+        if(horizontal) {
+          const barH=(h-pad*2)/vals.length*0.6;
+          const gap=(h-pad*2)/vals.length;
+          const labelW=70;
+          vals.forEach((v,i)=>{
+            const bw=(v/max)*(w-labelW-30);
+            const y=pad+i*gap+(gap-barH)/2;
+            ctx.fillStyle=colors[i]||colors[0];
+            ctx.fillRect(labelW,y,bw,barH);
+            ctx.fillStyle='#5C3D2A'; ctx.font='bold 10px Arial';
+            ctx.fillText(labels[i].slice(0,14),2,y+barH*0.75);
+            ctx.fillStyle='#1A0A02'; ctx.font='bold 10px Arial';
+            ctx.fillText(v, labelW+bw+4, y+barH*0.75);
+          });
+        } else {
+          const barW=(w-pad*2)/vals.length*0.65;
+          const gap=(w-pad*2)/vals.length;
+          const labelH=14; const chartH=h-labelH-pad;
+          vals.forEach((v,i)=>{
+            const bh=(v/max)*(chartH-pad);
+            const x=pad+i*gap+(gap-barW)/2;
+            const y=chartH-bh;
+            ctx.fillStyle=colors[i]||colors[0];
+            ctx.fillRect(x,y,barW,bh);
+            ctx.fillStyle='#5C3D2A'; ctx.font='10px Arial';
+            ctx.textAlign='center';
+            ctx.fillText(labels[i], x+barW/2, h-2);
+          });
+        }
+        return c.toDataURL('image/png');
+      }
+
+      // ── Line chart (canvas→image) ─────────────────────────
+      function lineImg(datasets, labels, w, h) {
+        const c=document.createElement('canvas');
+        c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h);
+        const padL=30, padB=20, padT=10, padR=10;
+        const cw=w-padL-padR, ch=h-padB-padT;
+        const allVals=datasets.flatMap(d=>d.data);
+        const maxV=Math.max(...allVals,1);
+        // grid lines
+        [0,0.25,0.5,0.75,1].forEach(p=>{
+          const y=padT+ch*(1-p);
+          ctx.strokeStyle='#EDD9CC'; ctx.lineWidth=0.5;
+          ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+          ctx.fillStyle='#A07860'; ctx.font='9px Arial';
+          ctx.textAlign='right';
+          ctx.fillText(Math.round(maxV*p), padL-3, y+3);
+        });
+        // x labels
+        ctx.fillStyle='#5C3D2A'; ctx.font='9px Arial'; ctx.textAlign='center';
+        labels.forEach((l,i)=>{
+          const x=padL+i*(cw/(labels.length-1||1));
+          ctx.fillText(l, x, h-5);
+        });
+        // lines
+        datasets.forEach(ds=>{
+          ctx.strokeStyle=ds.color; ctx.lineWidth=2;
+          ctx.beginPath();
+          ds.data.forEach((v,i)=>{
+            const x=padL+i*(cw/(ds.data.length-1||1));
+            const y=padT+ch*(1-v/maxV);
+            i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+          });
+          ctx.stroke();
+          // dots
+          ds.data.forEach((v,i)=>{
+            const x=padL+i*(cw/(ds.data.length-1||1));
+            const y=padT+ch*(1-v/maxV);
+            ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+            ctx.fillStyle=ds.color; ctx.fill();
+          });
+        });
+        return c.toDataURL('image/png');
+      }
+
+      // ════════════════════════════════════════════════
+      //  PÁGINA 1 — DASHBOARD
+      // ════════════════════════════════════════════════
+      drawHeader(1);
+      let y = 20;
+
+      // Intro
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); setTxt(TXT3);
+      doc.text(DB.length+' registros  ·  Janeiro a Maio/2026  ·  Gerado em '+new Date().toLocaleDateString('pt-BR'), ML, y);
+      y += 5;
+
+      // ── Vendas ────────────────────────────────────────
+      y = secTitle('Vendas realizadas', y);
+
+      const bannerH=18; const col4=CW/4;
+      [
+        [brlk(vgv),  'VGV Total'],
+        [brlk(ticket),'Ticket Médio'],
+        [brlk(maior), 'Maior Venda'],
+        [vendas.length+'', 'Vendas Totais'],
+      ].forEach(([val,lbl],i)=>{
+        const x=ML+i*col4;
+        setFill(OR); doc.roundedRect(x+0.5,y,col4-1,bannerH,2,2,'F');
+        setTxt(WHITE);
+        doc.setFont('helvetica','bold'); doc.setFontSize(12);
+        doc.text(val, x+col4/2, y+9, {align:'center'});
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+        setTxt(OR_M);
+        doc.text(lbl, x+col4/2, y+14.5, {align:'center'});
+      });
+      y += bannerH+3;
+
+      // Venda cards
+      const vords=[...vval].sort((a,b)=>b.valor-a.valor);
+      const semVal=vendas.filter(r=>!r.valor||r.valor===0);
+      const allvc=[...vords,...semVal];
+      const col3=CW/3; const cardH=16;
+      allvc.forEach((r,i)=>{
+        const col=i%3; const row=Math.floor(i/3);
+        const x=ML+col*col3; const cy=y+row*(cardH+2);
+        const haval=r.valor>0;
+        rrect(x+0.5,cy,col3-1,cardH,2, haval?GR_L:LGRAY, haval?GR_M:BDR);
+        setTxt(haval?GR:TXT3);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9);
+        doc.text(haval?brl(r.valor):'Valor não informado', x+4, cy+6);
+        setTxt(TXT);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text(r.imobiliaria||'—', x+4, cy+11);
+        setTxt(TXT3);
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+        const d=r.data||'';
+        doc.text((d?d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(2,4):'—')+'  ·  '+(r.produto||''), x+4, cy+15);
+      });
+      const vcRows=Math.ceil(allvc.length/3);
+      y += vcRows*(cardH+2)+3;
+
+      // ── Big numbers ──────────────────────────────────────
+      y = secTitle('Resumo geral — Jan a Mai/2026', y);
+      const bnH=20;
+      [
+        [String(atend.length), 'Atendimentos', quentes+' clientes quentes', OR_L, OR_D],
+        [String(trein.length), 'Treinamentos', 'Imobiliárias treinadas',    SKY_L, SKY],
+        [String(vendas.length),'Vendas',       brlk(vgv)+' em VGV',         GR_L,  GR],
+        [String(atend.length+trein.length+vendas.length),'Total de ações','Jan – Mai/2026', PRP_L, PRP],
+      ].forEach(([val,lbl,sub,bg,tc],i)=>{
+        const x=ML+i*col4;
+        rrect(x+0.5,y,col4-1,bnH,3,bg,BDR);
+        setTxt(tc);
+        doc.setFont('helvetica','bold'); doc.setFontSize(16);
+        doc.text(val, x+col4/2, y+10, {align:'center'});
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+        doc.text(lbl, x+col4/2, y+15, {align:'center'});
+        doc.setFont('helvetica','normal'); doc.setFontSize(6);
+        doc.text(sub, x+col4/2, y+19, {align:'center'});
+      });
+      y += bnH+4;
+
+      // ── Distribuição — 3 pies ────────────────────────────
+      y = secTitle('Distribuição geral', y);
+      const PIE_SZ=120; const pieW=CW/3; const pieMM=28;
+
+      const pies=[
+        { vals:[atend.length,trein.length,vendas.length], clrs:['#E8611A','#B45309','#1E7A3E'], labels:['Atendimento','Treinamento','Venda'], title:'Ações por tipo' },
+        { vals:['Frio','Morno','Quente'].map(s=>atend.filter(r=>r.situacao===s).length), clrs:['#1B5FA8','#F59E0B','#1E7A3E'], labels:['Frio','Morno','Quente'], title:'Temperatura' },
+        { vals:['Intento','Amati'].map(p=>DB.filter(r=>r.produto===p).length), clrs:['#E8611A','#1B5FA8'], labels:['Intento','Amati'], title:'Produto' },
+      ];
+      pies.forEach((p,i)=>{
+        const x=ML+i*pieW;
+        const img=pieImg(p.vals,p.clrs,PIE_SZ);
+        doc.addImage(img,'PNG',x+(pieW-pieMM)/2,y,pieMM,pieMM);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); setTxt(TXT2);
+        doc.text(p.title, x+pieW/2, y+pieMM+4, {align:'center'});
+        p.labels.forEach((l,j)=>{
+          const lx=x+3; const ly=y+pieMM+8+j*5;
+          setFill(p.clrs[j].match(/\w\w/g).map(h=>parseInt(h,16)));
+          doc.setFillColor(...p.clrs[j].match(/\w\w/g).map(h=>parseInt(h,16)));
+          doc.rect(lx,ly-2.5,3,3,'F');
+          doc.setFont('helvetica','normal'); doc.setFontSize(6.5); setTxt(TXT2);
+          doc.text(l+' ('+p.vals[j]+')', lx+4.5, ly);
+        });
+      });
+      y += pieMM + 8 + 3*5 + 3;
+
+      // ── Top imobiliárias ─────────────────────────────────
+      y = secTitle('Atendimentos por imobiliária', y);
+      const ic={};
+      atend.forEach(r=>{ if(r.imobiliaria) ic[r.imobiliaria]=(ic[r.imobiliaria]||0)+1; });
+      const top=Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      const maxIC=Math.max(...top.map(x=>x[1]),1);
+      const barAreaW=CW*0.55; const labelW=32;
+
+      top.forEach(([l,v],i)=>{
+        const by=y+i*6;
+        const bw=(v/maxIC)*(barAreaW-labelW-10);
+        setFill(OR); doc.rect(ML+labelW, by, bw, 4, 'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.5); setTxt(TXT2);
+        doc.text(l.slice(0,14), ML, by+3.5);
+        setTxt(TXT);
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+        doc.text(String(v), ML+labelW+bw+2, by+3.5);
+      });
+
+      // Fluxo pie ao lado
+      const fSim=atend.filter(r=>r.fluxo==='sim').length;
+      const fNao=atend.filter(r=>r.fluxo==='não').length;
+      const fNd=atend.length-fSim-fNao;
+      const fimg=pieImg([fSim,fNao,fNd],['#E8611A','#B91C1C','#CBD5E1'],80);
+      const fpx=ML+CW*0.62; const fpy=y;
+      doc.addImage(fimg,'PNG',fpx,fpy,22,22);
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); setTxt(TXT2);
+      doc.text('Fluxo realizado', fpx+11, fpy+25, {align:'center'});
+      [['Sim',fSim,'#E8611A'],['Não',fNao,'#B91C1C'],['Sem info',fNd,'#CBD5E1']].forEach(([l,v,c],i)=>{
+        doc.setFillColor(...c.match(/\w\w/g).map(h=>parseInt(h,16)));
+        doc.rect(fpx,fpy+27+i*5-2.5,3,3,'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.5); setTxt(TXT2);
+        doc.text(l+' ('+v+')', fpx+4.5, fpy+27+i*5);
+      });
+
+      // ════════════════════════════════════════════════
+      //  PÁGINA 2 — ANÁLISE MENSAL
+      // ════════════════════════════════════════════════
+      doc.addPage();
+      drawHeader(2);
+      y = 20;
+
+      // ── Linha mensal ─────────────────────────────────────
+      y = secTitle('Evolução mensal — Atendimentos, Treinamentos e Vendas', y);
+      const lineW=Math.round(CW*3.78); const lineH=130;
+      const limg=lineImg([
+        {data:APM,color:'#E8611A'},
+        {data:TPM,color:'#B45309'},
+        {data:VPM,color:'#1E7A3E'},
+      ], meses.map(nm), lineW, lineH);
+      doc.addImage(limg,'PNG',ML,y,CW,lineH/3.78);
+      const lineHmm=lineH/3.78;
+      // legend
+      [['Atendimentos','#E8611A'],['Treinamentos','#B45309'],['Vendas','#1E7A3E']].forEach(([l,c],i)=>{
+        const lx=ML+i*38;
+        doc.setFillColor(...c.match(/\w\w/g).map(h=>parseInt(h,16)));
+        doc.rect(lx,y+lineHmm+2,3,3,'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); setTxt(TXT2);
+        doc.text(l, lx+4.5, y+lineHmm+5);
+      });
+      y += lineHmm + 9;
+
+      // ── Barras VGV ───────────────────────────────────────
+      y = secTitle('Valor total de vendas por mês (R$)', y);
+      const maxVP=Math.max(...VALPM,1);
+      const bvW=Math.round(CW*3.78); const bvH=90;
+      const bvimg=barImg(VALPM, meses.map(nm),
+        VALPM.map(v=>v===maxVP&&v>0?'#1E7A3E':'#A7F3D0'), bvW, bvH, false);
+      doc.addImage(bvimg,'PNG',ML,y,CW,bvH/3.78);
+      y += bvH/3.78 + 5;
+
+      // ── Tabela mensal ─────────────────────────────────────
+      y = secTitle('Resumo por mês com variação em relação ao mês anterior', y);
+
+      const cols=[20,28,28,24,36,28]; // mm widths
+      const rowH=10;
+      // header
+      const hdrs=['Mês','Atendimentos','Treinamentos','Vendas','VGV (R$)','Total ações'];
+      let cx=ML;
+      setFill(OR_L);
+      doc.rect(ML,y,CW,rowH,'F');
+      setDraw(BDR); doc.rect(ML,y,CW,rowH,'S');
+      hdrs.forEach((h,i)=>{
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); setTxt(OR_D);
+        doc.text(h, cx+cols[i]/2, y+6.5, {align:'center'});
+        cx+=cols[i];
+      });
+      y += rowH;
+
+      meses.forEach((m,ri)=>{
+        const tot=TOTPM[ri];
+        const pA  =ri>0?APM[ri-1]:null;
+        const pT  =ri>0?TPM[ri-1]:null;
+        const pV  =ri>0?VPM[ri-1]:null;
+        const pVGV=ri>0?VALPM[ri-1]:null;
+        const pTot=ri>0?TOTPM[ri-1]:null;
+
+        setFill(ri%2===0?WHITE:LGRAY);
+        doc.rect(ML,y,CW,rowH,'F');
+        setDraw(BDR); doc.rect(ML,y,CW,rowH,'S');
+
+        const cells=[
+          {val:nm(m), prev:null, color:TXT, bold:true},
+          {val:APM[ri],  prev:pA,   color:OR},
+          {val:TPM[ri],  prev:pT,   color:AMB},
+          {val:VPM[ri],  prev:pV,   color:GR},
+          {val:VALPM[ri]>0?brl(VALPM[ri]):'—', rawVal:VALPM[ri], prev:pVGV, color:VALPM[ri]>0?GR:TXT3},
+          {val:tot,      prev:pTot, color:PRP},
+        ];
+
+        cx=ML;
+        cells.forEach((cell,ci)=>{
+          const valStr=typeof cell.val==='number'?String(cell.val):cell.val;
+          const vp=cell.prev!==null?vpct(typeof cell.rawVal!=='undefined'?cell.rawVal:(typeof cell.val==='number'?cell.val:0), cell.prev):'';
+
+          setTxt(cell.color);
+          doc.setFont('helvetica', cell.bold?'bold':'bold');
+          doc.setFontSize(vp?7.5:8);
+          const ty=vp ? y+5 : y+6.5;
+          doc.text(valStr, cx+cols[ci]/2, ty, {align:'center'});
+
+          if(vp && vp!=='—') {
+            const isUp=vp.includes('▲');
+            setTxt(isUp?GR:RED);
+            doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+            doc.text(vp, cx+cols[ci]/2, y+9, {align:'center'});
+          }
+          cx+=cols[ci];
+        });
+        y+=rowH;
+      });
+
+      // ── Save ─────────────────────────────────────────────
+      doc.save('relatorio_bild_'+new Date().toISOString().slice(0,10)+'.pdf');
+
+    } catch(e) {
+      console.error('PDF error:', e);
+      alert('Erro ao gerar PDF: '+e.message);
+    } finally {
+      btn.textContent = '⬇ Exportar PDF';
+      btn.disabled = false;
+    }
+  }, 100);
+}
+
+</script>
+</body>
+</html>
