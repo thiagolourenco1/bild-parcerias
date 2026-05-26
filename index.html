@@ -874,19 +874,26 @@ function gerarPDF() {
       function setDraw(c) { doc.setDrawColor(c[0],c[1],c[2]); }
       function setTxt(c)  { doc.setTextColor(c[0],c[1],c[2]); }
 
-      // Data
-      const atend  = DB.filter(r=>r.acao==='Atendimento');
-      const trein  = DB.filter(r=>r.acao==='Treinamento');
-      const vendas = DB.filter(r=>r.acao==='Venda');
+      // Data — respeita filtros ativos de mês e produto
+      const DADOS  = dadosFiltrados();
+      const _mesLbl  = mesSelecionado==='todos' ? 'Todos os meses' : nomeMes(mesSelecionado);
+      const _prodLbl = prodSelecionado==='todos' ? 'Todos os produtos' : prodSelecionado;
+      const periodoTitulo = _mesLbl + (prodSelecionado!=='todos' ? ' · '+_prodLbl : '');
+
+      const atend  = DADOS.filter(r=>r.acao==='Atendimento');
+      const trein  = DADOS.filter(r=>r.acao==='Treinamento');
+      const vendas = DADOS.filter(r=>r.acao==='Venda');
       const vval   = vendas.filter(r=>r.valor>0);
       const vgv    = vval.reduce((s,r)=>s+r.valor,0);
       const ticket = vval.length?vgv/vval.length:0;
       const maior  = vval.length?Math.max(...vval.map(r=>r.valor)):0;
       const quentes= atend.filter(r=>r.situacao==='Quente').length;
 
-      const meses  = [...new Set(DB.filter(r=>r.data).map(r=>r.data.slice(0,7)))].sort();
-      const pm=(acao,m)=>DB.filter(r=>r.acao===acao&&r.data&&r.data.startsWith(m)).length;
-      const pv=m=>DB.filter(r=>r.acao==='Venda'&&r.data&&r.data.startsWith(m)).reduce((s,r)=>s+(r.valor||0),0);
+      // Análise mensal usa DB completo filtrado só por produto
+      const _dbMes = prodSelecionado==='todos' ? DB : DB.filter(r=>r.produto===prodSelecionado);
+      const meses  = [...new Set(_dbMes.filter(r=>r.data).map(r=>r.data.slice(0,7)))].sort();
+      const pm=(acao,m)=>_dbMes.filter(r=>r.acao===acao&&r.data&&r.data.startsWith(m)).length;
+      const pv=m=>_dbMes.filter(r=>r.acao==='Venda'&&r.data&&r.data.startsWith(m)).reduce((s,r)=>s+(r.valor||0),0);
       const APM=meses.map(m=>pm('Atendimento',m));
       const TPM=meses.map(m=>pm('Treinamento',m));
       const VPM=meses.map(m=>pm('Venda',m));
@@ -905,6 +912,8 @@ function gerarPDF() {
         doc.text('Carla Dias  ·  Bild Desenvolvimento Imobiliário', ML+13, 13);
         const d=new Date(); const ds=d.toLocaleDateString('pt-BR');
         doc.text(ds, PW-ML, 10, {align:'right'});
+        doc.setFont('helvetica','normal'); doc.setFontSize(6); setTxt(OR_M);
+        doc.text('Filtro: '+periodoTitulo, PW-ML, 14.5, {align:'right'});
         // footer
         setFill(BDR); doc.rect(0,PH-7,PW,7,'F');
         setTxt(TXT2); doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
@@ -1058,7 +1067,7 @@ function gerarPDF() {
 
       // Intro
       doc.setFont('helvetica','normal'); doc.setFontSize(7); setTxt(TXT3);
-      doc.text(DB.length+' registros  ·  Janeiro a Maio/2026  ·  Gerado em '+new Date().toLocaleDateString('pt-BR'), ML, y);
+      doc.text(DADOS.length+' registros  ·  Período: '+periodoTitulo+'  ·  Gerado em '+new Date().toLocaleDateString('pt-BR'), ML, y);
       y += 5;
 
       // ── Vendas ────────────────────────────────────────
@@ -1107,13 +1116,13 @@ function gerarPDF() {
       y += vcRows*(cardH+2)+3;
 
       // ── Big numbers ──────────────────────────────────────
-      y = secTitle('Resumo geral — Jan a Mai/2026', y);
+      y = secTitle('Resumo — '+periodoTitulo, y);
       const bnH=20;
       [
         [String(atend.length), 'Atendimentos', quentes+' clientes quentes', OR_L, OR_D],
         [String(trein.length), 'Treinamentos', 'Imobiliárias treinadas',    SKY_L, SKY],
         [String(vendas.length),'Vendas',       brlk(vgv)+' em VGV',         GR_L,  GR],
-        [String(atend.length+trein.length+vendas.length),'Total de ações','Jan – Mai/2026', PRP_L, PRP],
+        [String(atend.length+trein.length+vendas.length),'Total de ações', periodoTitulo, PRP_L, PRP],
       ].forEach(([val,lbl,sub,bg,tc],i)=>{
         const x=ML+i*col4;
         rrect(x+0.5,y,col4-1,bnH,3,bg,BDR);
@@ -1196,7 +1205,7 @@ function gerarPDF() {
       y = 20;
 
       // ── Linha mensal ─────────────────────────────────────
-      y = secTitle('Evolução mensal — Atendimentos, Treinamentos e Vendas', y);
+      y = secTitle('Evolução mensal — '+periodoTitulo, y);
       const lineW=Math.round(CW*3.78); const lineH=130;
       const limg=lineImg([
         {data:APM,color:'#E8611A'},
@@ -1286,7 +1295,8 @@ function gerarPDF() {
       });
 
       // ── Save ─────────────────────────────────────────────
-      doc.save('relatorio_bild_'+new Date().toISOString().slice(0,10)+'.pdf');
+      const _slug = periodoTitulo.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/_+$/,'');
+      doc.save('relatorio_bild_'+_slug+'_'+new Date().toISOString().slice(0,10)+'.pdf');
 
     } catch(e) {
       console.error('PDF error:', e);
