@@ -202,6 +202,20 @@ tbody tr:hover td{background:#F8FAFC}
 .empty{text-align:center;padding:40px;color:var(--txt3)}
 .toast{position:fixed;bottom:24px;right:24px;background:#0D1829;color:#fff;padding:11px 18px;border-radius:var(--r);font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;z-index:9999}
 .toast.show{opacity:1;transform:none}
+.v-filters{display:flex;gap:8px;padding:0 0 16px;flex-wrap:wrap;align-items:center}
+.v-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.vscard{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.vscard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rlg) var(--rlg) 0 0}
+.vscard.c-or::before{background:var(--brand)}
+.vscard.c-gr::before{background:var(--green)}
+.vscard.c-sky::before{background:var(--sky)}
+.vscard.c-pu::before{background:var(--purple)}
+.vsc-label{font-size:10px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.vsc-val{font-size:20px;font-weight:700;letter-spacing:-1px;color:var(--txt);line-height:1;margin-bottom:2px}
+.vsc-sub{font-size:11px;color:var(--txt2)}
+.com-input{width:54px;padding:3px 5px;border:1px solid var(--bdr);border-radius:5px;font-size:10px;font-family:'Inter',sans-serif;color:var(--txt);background:var(--bg);text-align:right}
+.com-input:focus{outline:none;border-color:var(--brand);background:var(--sfc)}
+.v-totals td{background:var(--brand-l)!important;font-weight:700;border-top:2px solid var(--brand)}
 @media print{.sidebar,.topbar-actions,.factions,.delbtn,.search-bar .btn{display:none!important}.main{margin-left:0}.topbar{position:static}.panel.active{display:block!important}}
 </style>
 </head>
@@ -228,6 +242,9 @@ tbody tr:hover td{background:#F8FAFC}
     </button>
     <button class="nav-btn" onclick="nav('hist')">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Histórico
+    </button>
+    <button class="nav-btn" onclick="nav('vendas')">
+      <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Relatório de Vendas
     </button>
   </div>
   <div class="sb-footer" style="text-align:center">© Bild Desenv. Imobiliário</div>
@@ -269,12 +286,12 @@ tbody tr:hover td{background:#F8FAFC}
     <!-- NOVO REGISTRO -->
     <div class="panel active" id="panel-novo">
       <div class="form-wrap">
-        <p class="form-hint">Preencha os dados após cada atendimento, treinamento ou venda.</p>
+        <p class="form-hint">Preencha os dados após cada atendimento, treinamento ou venda. Ao selecionar <strong>Venda</strong>, campos de comissão aparecerão automaticamente.</p>
         <div class="fcard">
           <div class="fgrid">
             <div class="fg"><label class="flabel">Data *</label><input class="finput" id="f-data" type="date"></div>
             <div class="fg"><label class="flabel">Ação *</label>
-              <select class="fselect" id="f-acao"><option value="">Selecione...</option><option>Atendimento</option><option>Treinamento</option><option>Venda</option></select>
+              <select class="fselect" id="f-acao" onchange="toggleVendaFields()"><option value="">Selecione...</option><option>Atendimento</option><option>Treinamento</option><option>Venda</option></select>
             </div>
             <div class="fg"><label class="flabel">Produto *</label>
               <select class="fselect" id="f-produto"><option value="">Selecione...</option><option>Intento</option><option>Amati</option></select>
@@ -284,6 +301,23 @@ tbody tr:hover td{background:#F8FAFC}
             <div class="fg"><label class="flabel">Nome do Cliente</label><input class="finput" id="f-cliente" type="text"></div>
             <div class="fg"><label class="flabel">Unidade</label><input class="finput" id="f-unidade" type="text" placeholder="Ex: 401, 1201..."></div>
             <div class="fg"><label class="flabel">Valor (R$)</label><input class="finput" id="f-valor" type="number" step="0.01" placeholder="0,00"></div>
+            <!-- Comissão fields — visível só quando Ação = Venda -->
+            <div class="fg venda-field" id="fg-pct-imob" style="display:none">
+              <label class="flabel">% Comissão Imobiliária</label>
+              <input class="finput" id="f-pct-imob" type="number" step="0.01" placeholder="Ex: 4.00" oninput="calcComissoes()">
+            </div>
+            <div class="fg venda-field" id="fg-com-imob" style="display:none">
+              <label class="flabel">Comissão Imob (R$)</label>
+              <input class="finput" id="f-com-imob" type="number" step="0.01" placeholder="Calculado automaticamente" oninput="calcComissoesReverse('imob')">
+            </div>
+            <div class="fg venda-field" id="fg-pct-carla" style="display:none">
+              <label class="flabel">% Comissão Carla</label>
+              <input class="finput" id="f-pct-carla" type="number" step="0.01" placeholder="Ex: 0.50" oninput="calcComissoes()">
+            </div>
+            <div class="fg venda-field" id="fg-com-carla" style="display:none">
+              <label class="flabel">Comissão Carla (R$)</label>
+              <input class="finput" id="f-com-carla" type="number" step="0.01" placeholder="Calculado automaticamente" oninput="calcComissoesReverse('carla')">
+            </div>
             <div class="fg"><label class="flabel">Realizou Fluxo?</label>
               <select class="fselect" id="f-fluxo"><option value="">—</option><option value="sim">Sim</option><option value="não">Não</option></select>
             </div>
@@ -391,6 +425,54 @@ tbody tr:hover td{background:#F8FAFC}
       </div>
     </div>
 
+    <!-- RELATÓRIO DE VENDAS -->
+    <div class="panel" id="panel-vendas">
+      <div class="v-filters">
+        <span class="filter-label">Filtrar:</span>
+        <select class="fsel" id="vf-ano" onchange="renderVendas()">
+          <option value="">Todos os anos</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+        <select class="fsel" id="vf-mes" onchange="renderVendas()">
+          <option value="">Todos os meses</option>
+          <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+          <option value="03">Março</option><option value="04">Abril</option>
+          <option value="05">Maio</option><option value="06">Junho</option>
+          <option value="07">Julho</option><option value="08">Agosto</option>
+          <option value="09">Setembro</option><option value="10">Outubro</option>
+          <option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+        <select class="fsel" id="vf-prod" onchange="renderVendas()">
+          <option value="">Todos os produtos</option>
+          <option value="Intento">Intento</option>
+          <option value="Amati">Amati</option>
+        </select>
+        <select class="fsel" id="vf-imob" onchange="renderVendas()">
+          <option value="">Todas as imobiliárias</option>
+        </select>
+        <span style="margin-left:auto;font-size:11px;color:var(--txt3)" id="v-count"></span>
+        <button class="btn btn-ghost" onclick="exportarVendasCSV()">↓ CSV</button>
+        <button class="btn btn-primary" onclick="gerarVendasPDF()" id="btn-vpdf">⬇ PDF</button>
+      </div>
+      <div class="v-summary" id="v-summary"></div>
+      <div class="tcard">
+        <div class="twrap">
+          <table>
+            <thead><tr>
+              <th>Data</th><th>Cliente</th><th>Produto</th><th>Unidade</th>
+              <th>Imobiliária</th><th>VGV</th>
+              <th>% Imob</th><th>Comissão Imob</th>
+              <th>% Carla</th><th>Comissão Carla</th>
+            </tr></thead>
+            <tbody id="v-tbody"></tbody>
+            <tfoot id="v-tfoot"></tfoot>
+          </table>
+          <div id="v-empty" class="empty" style="display:none">Nenhuma venda encontrada.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>
@@ -442,6 +524,7 @@ function init(){
       if (active && active.id === 'panel-dash')   renderDash();
       if (active && active.id === 'panel-mensal') renderMensal();
       if (active && active.id === 'panel-hist')   renderHist();
+      if (active && active.id === 'panel-vendas') renderVendas();
     });
   }
   startFirebase();
@@ -504,18 +587,19 @@ function dadosFiltrados(){
 }
 
 // ====== NAV ======
-const TITLES={novo:'Novo registro',dash:'Dashboard',mensal:'Análise mensal',hist:'Histórico de registros'};
+const TITLES={novo:'Novo registro',dash:'Dashboard',mensal:'Análise mensal',hist:'Histórico de registros',vendas:'Relatório de Vendas'};
 function nav(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  ['novo','dash','mensal','hist'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
+  ['novo','dash','mensal','hist','vendas'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
   document.getElementById('pg-title').textContent=TITLES[id]||'';
   // Mostra/esconde filtro
   document.getElementById('filter-bar').className='filter-bar'+(id==='dash'?'':' filter-bar-hidden');
   if(id==='dash'){buildMesPills();renderDash();}
   if(id==='mensal')renderMensal();
   if(id==='hist')renderHist();
+  if(id==='vendas')renderVendas();
 }
 
 function toast(msg,err){
@@ -530,12 +614,19 @@ function salvar(){
   const produto=document.getElementById('f-produto').value;
   const imob=document.getElementById('f-imob').value.trim();
   if(!data||!acao||!produto||!imob){toast('Preencha data, ação, produto e imobiliária',true);return;}
+  const valor = parseFloat(document.getElementById('f-valor').value)||0;
+  const pctImob  = acao==='Venda' ? (parseFloat(document.getElementById('f-pct-imob').value)||0)  : 0;
+  const pctCarla = acao==='Venda' ? (parseFloat(document.getElementById('f-pct-carla').value)||0) : 0;
   const record = {
     id: Date.now(), data, acao, produto, imobiliaria: imob,
     corretor:  document.getElementById('f-corretor').value.trim(),
     cliente:   document.getElementById('f-cliente').value.trim(),
     unidade:   document.getElementById('f-unidade').value.trim(),
-    valor:     parseFloat(document.getElementById('f-valor').value)||0,
+    valor,
+    pct_imob:       pctImob,
+    comissao_imob:  valor * pctImob / 100,
+    pct_carla:      pctCarla,
+    comissao_carla: valor * pctCarla / 100,
     fluxo:     document.getElementById('f-fluxo').value,
     situacao:  document.getElementById('f-situacao').value,
     proximos_passos: document.getElementById('f-passos').value.trim(),
@@ -546,7 +637,8 @@ function salvar(){
   toast('✓ Registro salvo!');
 }
 function limpar(){
-  ['f-acao','f-produto','f-imob','f-corretor','f-cliente','f-unidade','f-valor','f-fluxo','f-situacao','f-passos','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-acao','f-produto','f-imob','f-corretor','f-cliente','f-unidade','f-valor','f-pct-imob','f-com-imob','f-pct-carla','f-com-carla','f-fluxo','f-situacao','f-passos','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.querySelectorAll('.venda-field').forEach(el=>el.style.display='none');
   setDate();
 }
 function del(id, fbKey){
@@ -807,6 +899,331 @@ function exportCSV(){
   a.download='atendimentos_'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();toast('CSV exportado!');
 }
+
+// ═══════════════════════════════════════════════════════
+//  RELATÓRIO DE VENDAS
+// ═══════════════════════════════════════════════════════
+let VENDAS = [{"data": "2025-10-21", "cliente": "Ricardo C. Domingues", "produto": "Intento", "unidade": "501", "imobiliaria": "AYRES", "vgv": 1465541.93, "comissao_imob": 58621.67, "comissao_carla": 7327.72, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2025-11-27", "cliente": "Andrea Buainain dos Santos", "produto": "Intento", "unidade": "1103", "imobiliaria": "Prado Gonçalves", "vgv": 1382000.0, "comissao_imob": 55280.0, "comissao_carla": 6910.0, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2025-12-28", "cliente": "João Pedro Avesra Marinho", "produto": "Intento", "unidade": "204", "imobiliaria": "Provectum", "vgv": 1299900.0, "comissao_imob": 51996.0, "comissao_carla": 6499.5, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2026-01-12", "cliente": "João Batista Ferreira e uliana G. Ferreira", "produto": "Intento", "unidade": "1201", "imobiliaria": "Ritt", "vgv": 1399900.0, "comissao_imob": 55996.0, "comissao_carla": 6999.5, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2026-02-28", "cliente": "LRRuas Administração de Bens Ltda", "produto": "Intento", "unidade": "401", "imobiliaria": "Isoinfinity", "vgv": 300000.0, "comissao_imob": 12077.82, "comissao_carla": 6500.0, "pct_imob": 4.0259, "pct_carla": 2.1667}, {"data": "2026-03-11", "cliente": "Vanessa Cristina Cabrelon", "produto": "Intento", "unidade": "704", "imobiliaria": "Vide", "vgv": 1350000.0, "comissao_imob": 54000.0, "comissao_carla": 6750.0, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2026-05-01", "cliente": "Emerson de Jesus Fogaça", "produto": "Amati", "unidade": "114A", "imobiliaria": "DHG", "vgv": 740000.0, "comissao_imob": 29600.0, "comissao_carla": 3700.0, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2026-05-14", "cliente": "G F Santos Ltdas", "produto": "Intento", "unidade": "1904", "imobiliaria": "Watson", "vgv": 359957.71, "comissao_imob": 14398.3, "comissao_carla": 3059.64, "pct_imob": 4.0, "pct_carla": 0.85}, {"data": "2026-05-21", "cliente": "Marcio Gâmbar", "produto": "Amati", "unidade": "112A", "imobiliaria": "My Broker", "vgv": 750000.0, "comissao_imob": 30000.0, "comissao_carla": 3750.0, "pct_imob": 4.0, "pct_carla": 0.5}, {"data": "2026-05-28", "cliente": "Guimarães Holding", "produto": "Intento", "unidade": "1004", "imobiliaria": "Zero19", "vgv": 1330000.0, "comissao_imob": 66500.0, "comissao_carla": 11305.0, "pct_imob": 5.0, "pct_carla": 0.85}, {"data": "2026-05-29", "cliente": "Jefer  Citadini", "produto": "Intento", "unidade": "304", "imobiliaria": "NFL", "vgv": 1230000.0, "comissao_imob": 49200.0, "comissao_carla": 10455.0, "pct_imob": 4.0, "pct_carla": 0.85}, {"data": "2026-05-29", "cliente": "Livia Maria Caldeira", "produto": "Intento", "unidade": "1804", "imobiliaria": "Ayres", "vgv": 1350000.0, "comissao_imob": 54000.0, "comissao_carla": 11475.0, "pct_imob": 4.0, "pct_carla": 0.85}];
+VENDAS.forEach(v => { if(v.produto) v.produto = v.produto.charAt(0).toUpperCase()+v.produto.slice(1).toLowerCase(); });
+
+// Build imob filter once
+(function(){
+  const imobs=[...new Set(VENDAS.map(v=>v.imobiliaria).filter(Boolean))].sort();
+  const sel=document.getElementById('vf-imob');
+  if(sel) imobs.forEach(i=>{ const o=document.createElement('option');o.value=i;o.textContent=i;sel.appendChild(o); });
+})();
+
+function vFiltrado(){
+  const ano=document.getElementById('vf-ano')?.value||'';
+  const mes=document.getElementById('vf-mes')?.value||'';
+  const prod=document.getElementById('vf-prod')?.value||'';
+  const imob=document.getElementById('vf-imob')?.value||'';
+  // Merge historical VENDAS with new Firebase vendas
+  const fbVendas = DB.filter(r=>r.acao==='Venda' && r.valor>0 && r.pct_imob!==undefined);
+  // Avoid duplicates: FB records that already exist in VENDAS by date+unidade
+  const vendaKeys = new Set(VENDAS.map(v=>v.data+'_'+v.unidade));
+  const novasVendas = fbVendas.filter(r=>!vendaKeys.has(r.data+'_'+r.unidade));
+  const novasFormatted = novasVendas.map(r=>({
+    data: r.data, cliente: r.cliente||'', produto: r.produto||'',
+    unidade: r.unidade||'', imobiliaria: r.imobiliaria||'',
+    vgv: r.valor||0,
+    pct_imob: r.pct_imob||0, comissao_imob: r.comissao_imob||0,
+    pct_carla: r.pct_carla||0, comissao_carla: r.comissao_carla||0,
+    _fbKey: r._fbKey
+  }));
+  const allVendas = [...VENDAS, ...novasFormatted].sort((a,b)=>a.data.localeCompare(b.data));
+  return allVendas.filter(v=>{
+    if(ano && !v.data.startsWith(ano)) return false;
+    if(mes && v.data.slice(5,7)!==mes) return false;
+    if(prod && v.produto!==prod) return false;
+    if(imob && v.imobiliaria!==imob) return false;
+    return true;
+  });
+}
+
+function vBRL(v){return v>0?'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';}
+function vBRLk(v){if(!v)return'R$ 0';if(v>=1e6)return'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M';if(v>=1e3)return'R$ '+(v/1e3).toFixed(0)+'k';return'R$ '+Math.round(v);}
+function vFmtData(d){if(!d)return'—';const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;}
+
+function vRecalc(idx, field, pct){
+  const v=VENDAS[idx];
+  const p=parseFloat(pct)||0;
+  if(field==='imob'){v.pct_imob=p;v.comissao_imob=v.vgv*p/100;}
+  else{v.pct_carla=p;v.comissao_carla=v.vgv*p/100;}
+  const el=document.getElementById('vval-'+field+'-'+idx);
+  if(el) el.textContent=vBRL(field==='imob'?v.comissao_imob:v.comissao_carla);
+  vUpdateSummary();vUpdateTotals();
+}
+
+function renderVendas(){
+  const lista=vFiltrado();
+  const ce=document.getElementById('v-count');
+  if(ce) ce.textContent=lista.length+' venda'+(lista.length!==1?'s':'');
+
+  const tbody=document.getElementById('v-tbody');
+  const empty=document.getElementById('v-empty');
+  if(!tbody) return;
+
+  if(!lista.length){tbody.innerHTML='';if(empty)empty.style.display='block';vUpdateSummary();return;}
+  if(empty) empty.style.display='none';
+
+  tbody.innerHTML=lista.map(v=>{
+    const idx=VENDAS.indexOf(v);
+    const prodBg=v.produto==='Amati'?'var(--sky-l)':'var(--brand-l)';
+    const prodClr=v.produto==='Amati'?'var(--sky)':'var(--brand)';
+    return `<tr>
+      <td style="font-size:11px;color:var(--txt3);white-space:nowrap">${vFmtData(v.data)}</td>
+      <td style="font-size:11px;font-weight:500;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${v.cliente}">${v.cliente||'—'}</td>
+      <td><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:${prodBg};color:${prodClr};white-space:nowrap">${v.produto}</span></td>
+      <td style="font-size:11px;text-align:center">${v.unidade||'—'}</td>
+      <td style="font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px" title="${v.imobiliaria}">${v.imobiliaria||'—'}</td>
+      <td style="font-size:11px;font-weight:600;color:var(--green);white-space:nowrap">${vBRL(v.vgv)}</td>
+      <td style="padding:6px 8px">
+        <div style="display:flex;align-items:center;gap:3px">
+          <input class="com-input" type="number" step="0.01" value="${v.pct_imob.toFixed(2)}"
+            onchange="vRecalc(${idx},'imob',this.value)" title="Editar % comissão imobiliária">
+          <span style="font-size:10px;color:var(--txt3)">%</span>
+        </div>
+      </td>
+      <td style="font-size:11px;font-weight:500;color:var(--sky);white-space:nowrap" id="vval-imob-${idx}">${vBRL(v.comissao_imob)}</td>
+      <td style="padding:6px 8px">
+        <div style="display:flex;align-items:center;gap:3px">
+          <input class="com-input" type="number" step="0.01" value="${v.pct_carla.toFixed(2)}"
+            onchange="vRecalc(${idx},'carla',this.value)" title="Editar % comissão Carla">
+          <span style="font-size:10px;color:var(--txt3)">%</span>
+        </div>
+      </td>
+      <td style="font-size:11px;font-weight:600;color:var(--brand);white-space:nowrap" id="vval-carla-${idx}">${vBRL(v.comissao_carla)}</td>
+    </tr>`;
+  }).join('');
+
+  vUpdateTotals(lista);
+  vUpdateSummary(lista);
+}
+
+function vUpdateSummary(lista){
+  lista=lista||vFiltrado();
+  const tvgv=lista.reduce((s,v)=>s+v.vgv,0);
+  const timob=lista.reduce((s,v)=>s+v.comissao_imob,0);
+  const tcarla=lista.reduce((s,v)=>s+v.comissao_carla,0);
+  const el=document.getElementById('v-summary');
+  if(!el) return;
+  el.innerHTML=`
+    <div class="vscard c-or">
+      <div class="vsc-label">VGV Total</div>
+      <div class="vsc-val">${vBRLk(tvgv)}</div>
+      <div class="vsc-sub">${lista.length} venda${lista.length!==1?'s':''}</div>
+    </div>
+    <div class="vscard c-sky">
+      <div class="vsc-label">Comissão Imobiliária</div>
+      <div class="vsc-val" style="font-size:17px;color:var(--sky)">${vBRLk(timob)}</div>
+      <div class="vsc-sub">${lista.length&&tvgv?((timob/tvgv)*100).toFixed(2):0}% do VGV</div>
+    </div>
+    <div class="vscard c-gr">
+      <div class="vsc-label">Comissão Carla</div>
+      <div class="vsc-val" style="font-size:17px;color:var(--brand)">${vBRLk(tcarla)}</div>
+      <div class="vsc-sub">${lista.length&&tvgv?((tcarla/tvgv)*100).toFixed(2):0}% do VGV</div>
+    </div>
+    <div class="vscard c-pu">
+      <div class="vsc-label">Ticket Médio</div>
+      <div class="vsc-val" style="font-size:17px">${vBRLk(lista.length?tvgv/lista.length:0)}</div>
+      <div class="vsc-sub">por venda</div>
+    </div>`;
+}
+
+function vUpdateTotals(lista){
+  lista=lista||vFiltrado();
+  const tvgv=lista.reduce((s,v)=>s+v.vgv,0);
+  const timob=lista.reduce((s,v)=>s+v.comissao_imob,0);
+  const tcarla=lista.reduce((s,v)=>s+v.comissao_carla,0);
+  const avgI=lista.length?lista.reduce((s,v)=>s+v.pct_imob,0)/lista.length:0;
+  const avgC=lista.length?lista.reduce((s,v)=>s+v.pct_carla,0)/lista.length:0;
+  const el=document.getElementById('v-tfoot');
+  if(!el) return;
+  el.innerHTML=`<tr class="v-totals">
+    <td colspan="5" style="font-size:11px">TOTAL (${lista.length} venda${lista.length!==1?'s':''})</td>
+    <td style="font-size:11px;color:var(--green)">${vBRL(tvgv)}</td>
+    <td style="font-size:10px;color:var(--txt2)">${avgI.toFixed(2)}% médio</td>
+    <td style="font-size:11px;color:var(--sky)">${vBRL(timob)}</td>
+    <td style="font-size:10px;color:var(--txt2)">${avgC.toFixed(2)}% médio</td>
+    <td style="font-size:11px;color:var(--brand)">${vBRL(tcarla)}</td>
+  </tr>`;
+}
+
+function exportarVendasCSV(){
+  const lista=vFiltrado();
+  if(!lista.length){toast('Sem dados para exportar',true);return;}
+  const h='Data,Cliente,Produto,Unidade,Imobiliária,VGV,% Imob,Comissão Imob,% Carla,Comissão Carla';
+  const rows=lista.map(v=>[v.data,`"${v.cliente}"`,v.produto,v.unidade,`"${v.imobiliaria}"`,
+    v.vgv.toFixed(2),v.pct_imob.toFixed(2),v.comissao_imob.toFixed(2),
+    v.pct_carla.toFixed(2),v.comissao_carla.toFixed(2)].join(','));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent([h,...rows].join('\n'));
+  a.download='vendas_bild_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();toast('CSV exportado!');
+}
+
+function gerarVendasPDF(){
+  const btn=document.getElementById('btn-vpdf');
+  btn.textContent='⏳ Gerando...';btn.disabled=true;
+  setTimeout(()=>{
+    try{
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+      const PW=297,PH=210,ML=12,MR=12,CW=PW-ML-MR;
+      const OR=[232,97,26],ORL=[254,243,236],ORM=[251,207,176];
+      const GR=[30,122,62],GRL=[237,250,243];
+      const SKY=[27,95,168],SKYL=[238,245,255];
+      const PRP=[109,40,217],PRPL=[245,243,255];
+      const TXT=[26,10,2],TXT2=[92,61,42],TXT3=[160,120,96];
+      const BDR=[237,217,204],LGRAY=[245,237,230],WHITE=[255,255,255];
+      const sF=c=>doc.setFillColor(c[0],c[1],c[2]);
+      const sT=c=>doc.setTextColor(c[0],c[1],c[2]);
+      const sD=c=>doc.setDrawColor(c[0],c[1],c[2]);
+
+      const lista=vFiltrado();
+      const tvgv=lista.reduce((s,v)=>s+v.vgv,0);
+      const timob=lista.reduce((s,v)=>s+v.comissao_imob,0);
+      const tcarla=lista.reduce((s,v)=>s+v.comissao_carla,0);
+
+      // Build filter label
+      const fAno=document.getElementById('vf-ano').value||'Todos os anos';
+      const fMes=document.getElementById('vf-mes').options[document.getElementById('vf-mes').selectedIndex].text;
+      const fProd=document.getElementById('vf-prod').value||'Todos os produtos';
+      const fImob=document.getElementById('vf-imob').value||'Todas as imobiliárias';
+      const filtroStr=[fAno,fMes!=='Todos os meses'?fMes:null,fProd!=='Todos os produtos'?fProd:null,fImob!=='Todas as imobiliárias'?fImob:null].filter(Boolean).join(' · ');
+
+      // Header
+      sF(OR);doc.rect(0,0,PW,15,'F');
+      doc.addImage(LOGO_B64,'PNG',ML,1.5,10,10);
+      sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(11);
+      doc.text('Relatório de Vendas — Carla Dias',ML+12,7);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);
+      sT(ORM);doc.text('Bild Desenvolvimento Imobiliário',ML+12,12);
+      doc.text('Filtro: '+filtroStr,PW-MR,7,{align:'right'});
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),PW-MR,12,{align:'right'});
+
+      // Summary cards
+      let y=19;
+      const cw4=CW/4;
+      [[vBRLk(tvgv),'VGV Total',lista.length+' vendas',OR,ORM,ORL],
+       [vBRLk(timob),'Comissão Imobiliária',lista.length&&tvgv?((timob/tvgv)*100).toFixed(2)+'% do VGV':'—',SKY,[180,210,240],SKYL],
+       [vBRLk(tcarla),'Comissão Carla',lista.length&&tvgv?((tcarla/tvgv)*100).toFixed(2)+'% do VGV':'—',OR,ORM,ORL],
+       [vBRLk(lista.length?tvgv/lista.length:0),'Ticket Médio','por venda',PRP,[200,180,240],PRPL],
+      ].forEach(([val,lbl,sub,tc,subc,bg],i)=>{
+        const x=ML+i*cw4;
+        sF(bg);doc.roundedRect(x+0.5,y,cw4-1,18,2,2,'F');
+        sD(BDR);doc.roundedRect(x+0.5,y,cw4-1,18,2,2,'S');
+        sT(tc);doc.setFont('helvetica','bold');doc.setFontSize(12);
+        doc.text(val,x+cw4/2,y+8.5,{align:'center'});
+        sT(TXT2);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+        doc.text(lbl,x+cw4/2,y+13,{align:'center'});
+        sT(TXT3);doc.setFont('helvetica','normal');doc.setFontSize(6);
+        doc.text(sub,x+cw4/2,y+16.5,{align:'center'});
+      });
+      y+=22;
+
+      // Table header
+      const cols=[18,50,16,14,28,32,14,30,14,30];
+      const hdrs=['Data','Cliente','Produto','Unidade','Imobiliária','VGV','% Imob','Comissão Imob','% Carla','Comissão Carla'];
+      sF(ORL);doc.rect(ML,y,CW,8,'F');sD(BDR);doc.rect(ML,y,CW,8,'S');
+      let cx=ML;
+      hdrs.forEach((h,i)=>{
+        doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+        sT([196,78,14]);
+        doc.text(h,cx+cols[i]/2,y+5.2,{align:'center'});
+        cx+=cols[i];
+      });
+      y+=8;
+
+      lista.forEach((v,ri)=>{
+        const rh=8.5;
+        sF(ri%2===0?WHITE:LGRAY);doc.rect(ML,y,CW,rh,'F');
+        sD(BDR);doc.rect(ML,y,CW,rh,'S');
+        const cl=v.cliente||'—';
+        const vals=[
+          vFmtData(v.data),
+          cl.length>26?cl.slice(0,26)+'…':cl,
+          v.produto,
+          String(v.unidade||'—'),
+          (v.imobiliaria||'—').slice(0,16),
+          vBRL(v.vgv),
+          v.pct_imob.toFixed(2)+'%',
+          vBRL(v.comissao_imob),
+          v.pct_carla.toFixed(2)+'%',
+          vBRL(v.comissao_carla),
+        ];
+        cx=ML;
+        vals.forEach((val,i)=>{
+          const color=i===5?GR:i===7?SKY:i===9?OR:TXT2;
+          sT(color);
+          doc.setFont('helvetica',i===5||i===9?'bold':'normal');
+          doc.setFontSize(6.8);
+          doc.text(val,cx+cols[i]/2,y+5.5,{align:'center'});
+          cx+=cols[i];
+        });
+        y+=rh;
+      });
+
+      // Totals
+      const avgI=lista.length?lista.reduce((s,v)=>s+v.pct_imob,0)/lista.length:0;
+      const avgC=lista.length?lista.reduce((s,v)=>s+v.pct_carla,0)/lista.length:0;
+      sF(ORL);doc.rect(ML,y,CW,9,'F');
+      doc.setDrawColor(232,97,26);doc.setLineWidth(0.4);doc.rect(ML,y,CW,9,'S');
+      const totVals=['TOTAL ('+lista.length+')','','','','',vBRL(tvgv),avgI.toFixed(2)+'%',vBRL(timob),avgC.toFixed(2)+'%',vBRL(tcarla)];
+      cx=ML;
+      totVals.forEach((val,i)=>{
+        sT(i===5?GR:i===7?SKY:i===9?OR:TXT);
+        doc.setFont('helvetica','bold');doc.setFontSize(7);
+        doc.text(val,cx+cols[i]/2,y+5.8,{align:'center'});
+        cx+=cols[i];
+      });
+
+      // Footer
+      sF(BDR);doc.rect(0,PH-7,PW,7,'F');
+      sT(TXT2);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+      doc.text('Bild Desenvolvimento Imobiliário · Relatório de Vendas – Carla Dias',ML,PH-3);
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),PW-MR,PH-3,{align:'right'});
+
+      const slug=filtroStr.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,30);
+      doc.save('relatorio_vendas_'+slug+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+      toast('PDF gerado!');
+    }catch(e){console.error(e);toast('Erro: '+e.message,true);}
+    finally{btn.textContent='⬇ PDF';btn.disabled=false;}
+  },100);
+}
+
+
+// ── Venda form helpers ─────────────────────────────────────────────────
+function toggleVendaFields(){
+  const isVenda = document.getElementById('f-acao').value === 'Venda';
+  document.querySelectorAll('.venda-field').forEach(el=>{
+    el.style.display = isVenda ? 'flex' : 'none';
+  });
+}
+
+function calcComissoes(){
+  const vgv = parseFloat(document.getElementById('f-valor').value)||0;
+  const pctI = parseFloat(document.getElementById('f-pct-imob').value)||0;
+  const pctC = parseFloat(document.getElementById('f-pct-carla').value)||0;
+  if(vgv>0){
+    if(pctI>0) document.getElementById('f-com-imob').value = (vgv*pctI/100).toFixed(2);
+    if(pctC>0) document.getElementById('f-com-carla').value = (vgv*pctC/100).toFixed(2);
+  }
+}
+
+function calcComissoesReverse(field){
+  const vgv = parseFloat(document.getElementById('f-valor').value)||0;
+  if(!vgv) return;
+  if(field==='imob'){
+    const com = parseFloat(document.getElementById('f-com-imob').value)||0;
+    if(com>0) document.getElementById('f-pct-imob').value = (com/vgv*100).toFixed(4);
+  } else {
+    const com = parseFloat(document.getElementById('f-com-carla').value)||0;
+    if(com>0) document.getElementById('f-pct-carla').value = (com/vgv*100).toFixed(4);
+  }
+}
+
 
 init();
 
