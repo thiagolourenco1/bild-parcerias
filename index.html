@@ -202,7 +202,80 @@ tbody tr:hover td{background:#F8FAFC}
 .empty{text-align:center;padding:40px;color:var(--txt3)}
 .toast{position:fixed;bottom:24px;right:24px;background:#0D1829;color:#fff;padding:11px 18px;border-radius:var(--r);font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none;z-index:9999}
 .toast.show{opacity:1;transform:none}
-.v-filters{display:flex;gap:8px;padding:0 0 16px;flex-wrap:wrap;align-items:center}
+/* ── Fluxo de Pagamento ── */
+.fluxo-wrap{max-width:900px;margin:0 auto}
+.fluxo-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:14px 18px;background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);box-shadow:var(--sh)}
+.fluxo-card{background:#1B3A6B;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(27,58,107,.25);margin-bottom:20px}
+.fluxo-header{background:#1B3A6B;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+.fluxo-header-logo{font-size:18px;font-weight:900;color:#fff;letter-spacing:2px;font-style:italic}
+.fluxo-header-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:.5px}
+.fluxo-header-bild img{height:36px;width:auto}
+.fluxo-unit-bar{background:#1B3A6B;padding:16px 28px;display:grid;grid-template-columns:auto 1fr auto 1fr auto auto auto;gap:0;align-items:center;border-bottom:2px solid rgba(255,255,255,.06)}
+.fluxo-unit-icon{font-size:32px;margin-right:12px;opacity:.6}
+.fluxo-unit-field{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 16px;text-align:center;margin:0 6px}
+.fluxo-unit-label{font-size:10px;font-weight:600;color:#B8A878;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.fluxo-unit-val{font-size:18px;font-weight:800;color:#fff;letter-spacing:.5px}
+.fluxo-unit-sep{width:1px;background:rgba(255,255,255,.1);height:40px;margin:0 8px}
+.fluxo-scenarios{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:none}
+.fluxo-scenario{padding:0;border-right:1px solid rgba(255,255,255,.08)}
+.fluxo-scenario:last-child{border-right:none}
+.fluxo-scen-header{background:#B8A878;padding:12px 16px;text-align:center}
+.fluxo-scen-header.gold{background:#B8A878}
+.fluxo-scen-header.gold2{background:#9A8A5E}
+.fluxo-scen-header.gold3{background:#C8B888}
+.fluxo-scen-title{font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.6px;line-height:1.3}
+.fluxo-scen-body{padding:12px 16px}
+.fluxo-scen-row{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;margin-bottom:4px;background:rgba(255,255,255,.05);border-radius:6px}
+.fluxo-scen-row:last-child{margin-bottom:0}
+.fluxo-scen-row-label{font-size:11px;color:#B8A878;font-weight:500}
+.fluxo-scen-row-pct{font-size:10px;color:rgba(184,168,120,.7);margin-left:3px}
+.fluxo-scen-row-val{font-size:12px;font-weight:700;color:#fff}
+.fluxo-total-bar{padding:10px 16px;text-align:center;background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.08)}
+.fluxo-total-label{font-size:9px;font-weight:600;color:#B8A878;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.fluxo-total-val{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.fluxo-total-m2{font-size:10px;color:#B8A878;margin-top:3px}
+.fluxo-footer-note{padding:12px 28px;text-align:center;font-size:10px;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.06);font-style:italic}
+.fluxo-print-btn{display:flex;gap:8px}
+@media print{
+  .sidebar,.topbar,.fluxo-toolbar{display:none!important}
+  .main{margin-left:0!important}
+  .fluxo-wrap{max-width:100%}
+  .fluxo-card{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.tp-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;padding:14px 16px;background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);box-shadow:var(--sh)}
+.tp-toolbar .filter-label{font-size:12px;font-weight:500;color:var(--txt2);white-space:nowrap}
+.tp-adjust{display:flex;align-items:center;gap:8px;margin-left:auto;background:var(--brand-l);border:1px solid var(--brand-m);border-radius:var(--r);padding:8px 14px}
+.tp-adjust label{font-size:12px;font-weight:500;color:var(--brand);white-space:nowrap}
+.tp-adjust input{width:72px;padding:5px 8px;border:1px solid var(--brand-m);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;color:var(--brand);background:#fff;text-align:center;font-weight:600}
+.tp-adjust input:focus{outline:none;border-color:var(--brand)}
+.tp-adjust span{font-size:12px;color:var(--brand);font-weight:500}
+.tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.tp-section{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);overflow:hidden;box-shadow:var(--sh)}
+.tp-section-full{grid-column:1/-1}
+.tp-sec-header{background:var(--brand);color:#fff;padding:10px 16px;font-size:12px;font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+.tp-sec-header svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;flex-shrink:0}
+.tp-table{width:100%;border-collapse:collapse;font-size:11px}
+.tp-table th{padding:8px 10px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--txt3);border-bottom:1px solid var(--bdr);background:var(--bg);white-space:nowrap}
+.tp-table th:first-child{text-align:left}
+.tp-table td{padding:8px 10px;border-bottom:1px solid var(--bdr);text-align:center;color:var(--txt);white-space:nowrap}
+.tp-table td:first-child{text-align:left;font-weight:600;color:var(--brand)}
+.tp-table tr:last-child td{border-bottom:none}
+.tp-table tr:hover td{background:var(--bg)}
+.tp-table .td-tabela{font-weight:600;color:var(--txt)}
+.tp-table .td-avista{color:var(--green);font-weight:600}
+.tp-table .td-mensal{color:var(--sky);font-weight:500}
+.tp-table .td-ato{color:var(--brand);font-weight:500}
+.tp-badge-adj{display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;background:var(--brand-l);color:var(--brand);margin-left:4px;vertical-align:middle}
+.tp-fluxo{padding:16px}
+.tp-fluxo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.tp-fluxo-card{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;text-align:center}
+.tp-fluxo-label{font-size:10px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.tp-fluxo-val{font-size:16px;font-weight:700;color:var(--txt);letter-spacing:-.5px}
+.tp-fluxo-sub{font-size:10px;color:var(--txt2);margin-top:2px}
+.tp-unit-sel{padding:6px 10px;border:1px solid var(--bdr);border-radius:var(--r);font-size:12px;font-family:'Inter',sans-serif;background:var(--sfc);color:var(--txt);cursor:pointer;min-width:120px}
+.tp-unit-sel:focus{outline:none;border-color:var(--brand)}
+.tp-mes-badge{display:inline-flex;align-items:center;gap:4px;background:var(--brand-l);color:var(--brand);border:1px solid var(--brand-m);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-bottom:12px}
+.v-filters{display:flex;.v-filters{display:flex;gap:8px;padding:0 0 16px;flex-wrap:wrap;align-items:center}
 .v-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .vscard{background:var(--sfc);border:1px solid var(--bdr);border-radius:var(--rlg);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
 .vscard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rlg) var(--rlg) 0 0}
@@ -245,6 +318,12 @@ tbody tr:hover td{background:#F8FAFC}
     </button>
     <button class="nav-btn" onclick="nav('vendas')">
       <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Relatório de Vendas
+    </button>
+    <button class="nav-btn" onclick="nav('tabela')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Tabela de Preços
+    </button>
+    <button class="nav-btn" onclick="nav('fluxo')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Fluxo de Pagamento
     </button>
   </div>
   <div class="sb-footer" style="text-align:center">© Bild Desenv. Imobiliário</div>
@@ -473,6 +552,53 @@ tbody tr:hover td{background:#F8FAFC}
       </div>
     </div>
 
+    <!-- TABELA DE PREÇOS -->
+    <div class="panel" id="panel-tabela">
+
+      <!-- Toolbar -->
+      <div class="tp-toolbar">
+        <span class="filter-label">Tipo:</span>
+        <select class="fsel" id="tp-tipo" onchange="renderTabela()">
+          <option value="">Todos</option>
+          <option value="90.8">90,8 m² (2 dorms)</option>
+          <option value="120.11">120,11 m² (3 dorms)</option>
+        </select>
+        <span class="filter-label">Andar:</span>
+        <select class="fsel" id="tp-andar" onchange="renderTabela()">
+          <option value="">Todos os andares</option>
+        </select>
+        <div class="tp-adjust">
+          <label>Reajuste mensal:</label>
+          <input type="number" id="tp-reajuste" value="0" step="0.01" min="-50" max="50" onchange="renderTabela()" oninput="renderTabela()">
+          <span>%</span>
+        </div>
+        <button class="btn btn-primary" onclick="gerarTabelaPDF()" id="btn-tpdf">⬇ PDF Apresentação</button>
+      </div>
+
+      <div id="tp-content"></div>
+    </div>
+
+    <!-- FLUXO DE PAGAMENTO -->
+    <div class="panel" id="panel-fluxo">
+      <div class="fluxo-wrap">
+        <div class="fluxo-toolbar">
+          <span class="filter-label">Unidade:</span>
+          <select class="fsel" id="fl-unit" onchange="renderFluxo()" style="min-width:160px">
+          </select>
+          <span class="filter-label" style="margin-left:8px">Reajuste:</span>
+          <div style="display:flex;align-items:center;gap:6px;background:var(--brand-l);border:1px solid var(--brand-m);border-radius:var(--r);padding:7px 12px">
+            <input type="number" id="fl-reajuste" value="0" step="0.01" style="width:64px;padding:4px 6px;border:1px solid var(--brand-m);border-radius:5px;font-size:13px;font-family:'Inter',sans-serif;color:var(--brand);font-weight:600;text-align:center" onchange="renderFluxo()" oninput="renderFluxo()">
+            <span style="font-size:12px;color:var(--brand);font-weight:500">%</span>
+          </div>
+          <div class="fluxo-print-btn" style="margin-left:auto">
+            <button class="btn btn-ghost" onclick="window.print()">⎙ Imprimir</button>
+            <button class="btn btn-primary" onclick="gerarFluxoPDF()" id="btn-flpdf">⬇ PDF Cliente</button>
+          </div>
+        </div>
+        <div id="fluxo-content"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>
@@ -587,12 +713,12 @@ function dadosFiltrados(){
 }
 
 // ====== NAV ======
-const TITLES={novo:'Novo registro',dash:'Dashboard',mensal:'Análise mensal',hist:'Histórico de registros',vendas:'Relatório de Vendas'};
+const TITLES={novo:'Novo registro',dash:'Dashboard',mensal:'Análise mensal',hist:'Histórico de registros',vendas:'Relatório de Vendas',tabela:'Tabela de Preços — Intento',fluxo:'Fluxo de Pagamento — Intento'};
 function nav(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  ['novo','dash','mensal','hist','vendas'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
+  ['novo','dash','mensal','hist','vendas','tabela','fluxo'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
   document.getElementById('pg-title').textContent=TITLES[id]||'';
   // Mostra/esconde filtro
   document.getElementById('filter-bar').className='filter-bar'+(id==='dash'?'':' filter-bar-hidden');
@@ -600,6 +726,9 @@ function nav(id){
   if(id==='mensal')renderMensal();
   if(id==='hist')renderHist();
   if(id==='vendas')renderVendas();
+  if(id==='tabela')renderTabela();
+  if(id==='fluxo'){renderFluxo();}
+  if(id==='fluxo')renderFluxo();
 }
 
 function toast(msg,err){
@@ -1224,6 +1353,632 @@ function calcComissoesReverse(field){
   }
 }
 
+
+// ═══════════════════════════════════════════════════════
+//  TABELA DE PREÇOS — INTENTO
+// ═══════════════════════════════════════════════════════
+const UNIDADES = [{"unidade": 102, "m2": 90.8, "valor_viabilidade": 1123018.17, "valor_tabela": 1207270.45, "a_vista": 1156708.7151, "ato": 84508.9315, "mensal": 13797.376571428571, "intermediaria": 30181.76125, "financiamento": 965816.36}, {"unidade": 103, "m2": 90.8, "valor_viabilidade": 1123018.17, "valor_tabela": 1207270.45, "a_vista": 1156708.7151, "ato": 84508.9315, "mensal": 13797.376571428571, "intermediaria": 30181.76125, "financiamento": 965816.36}, {"unidade": 202, "m2": 90.8, "valor_viabilidade": 1195215.92, "valor_tabela": 1284588.14, "a_vista": 1231072.3976, "ato": 89921.1698, "mensal": 14681.007314285713, "intermediaria": 32114.7035, "financiamento": 1027670.512}, {"unidade": 203, "m2": 90.8, "valor_viabilidade": 1195215.92, "valor_tabela": 1284588.14, "a_vista": 1231072.3976, "ato": 89921.1698, "mensal": 14681.007314285713, "intermediaria": 32114.7035, "financiamento": 1027670.512}, {"unidade": 302, "m2": 90.8, "valor_viabilidade": 1195215.92, "valor_tabela": 1284588.14, "a_vista": 1231072.3976, "ato": 89921.1698, "mensal": 14681.007314285713, "intermediaria": 32114.7035, "financiamento": 1027670.512}, {"unidade": 303, "m2": 90.8, "valor_viabilidade": 1195215.92, "valor_tabela": 1284588.14, "a_vista": 1231072.3976, "ato": 89921.1698, "mensal": 14681.007314285713, "intermediaria": 32114.7035, "financiamento": 1027670.512}, {"unidade": 402, "m2": 90.8, "valor_viabilidade": 1232430.71, "valor_tabela": 1324442.05, "a_vista": 1269403.6313, "ato": 92710.94350000001, "mensal": 15136.480571428572, "intermediaria": 33111.051250000004, "financiamento": 1059553.6400000001}, {"unidade": 403, "m2": 90.8, "valor_viabilidade": 1232430.71, "valor_tabela": 1324442.05, "a_vista": 1269403.6313, "ato": 92710.94350000001, "mensal": 15136.480571428572, "intermediaria": 33111.051250000004, "financiamento": 1059553.6400000001}, {"unidade": 502, "m2": 90.8, "valor_viabilidade": 1232430.71, "valor_tabela": 0, "a_vista": 1320000.0, "ato": 96210.94, "mensal": 15707.9, "intermediaria": 34361.05, "financiamento": 1099553.71}, {"unidade": 503, "m2": 90.8, "valor_viabilidade": 1232430.71, "valor_tabela": 1324442.05, "a_vista": 1269403.6313, "ato": 92710.94350000001, "mensal": 15136.480571428572, "intermediaria": 33111.051250000004, "financiamento": 1059553.6400000001}, {"unidade": 602, "m2": 90.8, "valor_viabilidade": 1257746.99, "valor_tabela": 1351553.64, "a_vista": 1295479.3997, "ato": 94608.7548, "mensal": 15446.327314285712, "intermediaria": 33788.841, "financiamento": 1081242.912}, {"unidade": 603, "m2": 90.8, "valor_viabilidade": 1257746.99, "valor_tabela": 1351553.64, "a_vista": 1295479.3997, "ato": 94608.7548, "mensal": 15446.327314285712, "intermediaria": 33788.841, "financiamento": 1081242.912}, {"unidade": 702, "m2": 90.8, "valor_viabilidade": 1257746.99, "valor_tabela": 1351553.64, "a_vista": 1295479.3997, "ato": 94608.7548, "mensal": 15446.327314285712, "intermediaria": 33788.841, "financiamento": 1081242.912}, {"unidade": 703, "m2": 90.8, "valor_viabilidade": 1257746.99, "valor_tabela": 1351553.64, "a_vista": 1295479.3997, "ato": 94608.7548, "mensal": 15446.327314285712, "intermediaria": 33788.841, "financiamento": 1081242.912}, {"unidade": 802, "m2": 90.8, "valor_viabilidade": 1276580.87, "valor_tabela": 1371723.14, "a_vista": 1314878.2961000002, "ato": 96020.6198, "mensal": 15676.835885714285, "intermediaria": 34293.078499999996, "financiamento": 1097378.5119999999}, {"unidade": 803, "m2": 90.8, "valor_viabilidade": 1276580.87, "valor_tabela": 1371723.14, "a_vista": 1314878.2961000002, "ato": 96020.6198, "mensal": 15676.835885714285, "intermediaria": 34293.078499999996, "financiamento": 1097378.5119999999}, {"unidade": 902, "m2": 90.8, "valor_viabilidade": 1276580.87, "valor_tabela": 1371723.14, "a_vista": 1314878.2961000002, "ato": 96020.6198, "mensal": 15676.835885714285, "intermediaria": 34293.078499999996, "financiamento": 1097378.5119999999}, {"unidade": 903, "m2": 90.8, "valor_viabilidade": 1276580.87, "valor_tabela": 1371723.14, "a_vista": 1314878.2961000002, "ato": 96020.6198, "mensal": 15676.835885714285, "intermediaria": 34293.078499999996, "financiamento": 1097378.5119999999}, {"unidade": 1002, "m2": 90.8, "valor_viabilidade": 1291160.24, "valor_tabela": 1387336.41, "a_vista": 1329895.0472, "ato": 97113.5487, "mensal": 15855.273257142855, "intermediaria": 34683.41025, "financiamento": 1109869.128}, {"unidade": 1003, "m2": 90.8, "valor_viabilidade": 1291160.24, "valor_tabela": 1387336.41, "a_vista": 1329895.0472, "ato": 97113.5487, "mensal": 15855.273257142855, "intermediaria": 34683.41025, "financiamento": 1109869.128}, {"unidade": 1102, "m2": 90.8, "valor_viabilidade": 1291160.24, "valor_tabela": 1387336.41, "a_vista": 1329895.0472, "ato": 97113.5487, "mensal": 15855.273257142855, "intermediaria": 34683.41025, "financiamento": 1109869.128}, {"unidade": 1103, "m2": 90.8, "valor_viabilidade": 1291160.24, "valor_tabela": 1387336.41, "a_vista": 1329895.0472, "ato": 97113.5487, "mensal": 15855.273257142855, "intermediaria": 34683.41025, "financiamento": 1109869.128}, {"unidade": 1202, "m2": 90.8, "valor_viabilidade": 1305451.91, "valor_tabela": 1402641.59, "a_vista": 1344615.4673, "ato": 98184.91130000002, "mensal": 16030.189600000002, "intermediaria": 35066.03975, "financiamento": 1122113.272}, {"unidade": 1203, "m2": 90.8, "valor_viabilidade": 1305451.91, "valor_tabela": 1402641.59, "a_vista": 1344615.4673, "ato": 98184.91130000002, "mensal": 16030.189600000002, "intermediaria": 35066.03975, "financiamento": 1122113.272}, {"unidade": 1302, "m2": 90.8, "valor_viabilidade": 1305451.91, "valor_tabela": 1402641.59, "a_vista": 1344615.4673, "ato": 98184.91130000002, "mensal": 16030.189600000002, "intermediaria": 35066.03975, "financiamento": 1122113.272}, {"unidade": 1303, "m2": 90.8, "valor_viabilidade": 1305451.91, "valor_tabela": 1402641.59, "a_vista": 1344615.4673, "ato": 98184.91130000002, "mensal": 16030.189600000002, "intermediaria": 35066.03975, "financiamento": 1122113.272}, {"unidade": 1402, "m2": 90.8, "valor_viabilidade": 1319900.98, "valor_tabela": 1418115.32, "a_vista": 1359498.0094, "ato": 99268.07240000002, "mensal": 16207.03222857143, "intermediaria": 35452.883, "financiamento": 1134492.256}, {"unidade": 1403, "m2": 90.8, "valor_viabilidade": 1319900.98, "valor_tabela": 1418115.32, "a_vista": 1359498.0094, "ato": 99268.07240000002, "mensal": 16207.03222857143, "intermediaria": 35452.883, "financiamento": 1134492.256}, {"unidade": 1502, "m2": 90.8, "valor_viabilidade": 1319900.98, "valor_tabela": 1418115.32, "a_vista": 1359498.0094, "ato": 99268.07240000002, "mensal": 16207.03222857143, "intermediaria": 35452.883, "financiamento": 1134492.256}, {"unidade": 1503, "m2": 90.8, "valor_viabilidade": 1319900.98, "valor_tabela": 1418115.32, "a_vista": 1359498.0094, "ato": 99268.07240000002, "mensal": 16207.03222857143, "intermediaria": 35452.883, "financiamento": 1134492.256}, {"unidade": 1602, "m2": 90.8, "valor_viabilidade": 1334508.38, "valor_tabela": 1433758.62, "a_vista": 1374543.6313999998, "ato": 100363.10340000002, "mensal": 16385.812800000003, "intermediaria": 35843.965500000006, "financiamento": 1147006.8960000002}, {"unidade": 1603, "m2": 90.8, "valor_viabilidade": 1334508.38, "valor_tabela": 1433758.62, "a_vista": 1374543.6313999998, "ato": 100363.10340000002, "mensal": 16385.812800000003, "intermediaria": 35843.965500000006, "financiamento": 1147006.8960000002}, {"unidade": 1702, "m2": 90.8, "valor_viabilidade": 1334508.38, "valor_tabela": 1433758.62, "a_vista": 1374543.6313999998, "ato": 100363.10340000002, "mensal": 16385.812800000003, "intermediaria": 35843.965500000006, "financiamento": 1147006.8960000002}, {"unidade": 1703, "m2": 90.8, "valor_viabilidade": 1334508.38, "valor_tabela": 1433758.62, "a_vista": 1374543.6313999998, "ato": 100363.10340000002, "mensal": 16385.812800000003, "intermediaria": 35843.965500000006, "financiamento": 1147006.8960000002}, {"unidade": 1802, "m2": 90.8, "valor_viabilidade": 1349277.12, "valor_tabela": 1449574.69, "a_vista": 1389755.4336, "ato": 101470.2283, "mensal": 16566.567885714285, "intermediaria": 36239.36725, "financiamento": 1159659.752}, {"unidade": 1803, "m2": 90.8, "valor_viabilidade": 1349277.12, "valor_tabela": 1449574.69, "a_vista": 1389755.4336, "ato": 101470.2283, "mensal": 16566.567885714285, "intermediaria": 36239.36725, "financiamento": 1159659.752}, {"unidade": 1902, "m2": 90.8, "valor_viabilidade": 1349277.12, "valor_tabela": 1449574.69, "a_vista": 1389755.4336, "ato": 101470.2283, "mensal": 16566.567885714285, "intermediaria": 36239.36725, "financiamento": 1159659.752}, {"unidade": 1903, "m2": 90.8, "valor_viabilidade": 1349277.12, "valor_tabela": 1449574.69, "a_vista": 1389755.4336, "ato": 101470.2283, "mensal": 16566.567885714285, "intermediaria": 36239.36725, "financiamento": 1159659.752}, {"unidade": 101, "m2": 120.11, "valor_viabilidade": 1252772.03, "valor_tabela": 1545071.67, "a_vista": 1290355.1909, "ato": 108155.0169, "mensal": 17657.961942857142, "intermediaria": 38626.79175, "financiamento": 1236057.336}, {"unidade": 104, "m2": 120.11, "valor_viabilidade": 1252772.03, "valor_tabela": 1545071.67, "a_vista": 1290355.1909, "ato": 108155.0169, "mensal": 17657.961942857142, "intermediaria": 38626.79175, "financiamento": 1236057.336}, {"unidade": 201, "m2": 120.11, "valor_viabilidade": 1326766.37, "valor_tabela": 1633117.99, "a_vista": 1366569.3611, "ato": 114318.2593, "mensal": 18664.2056, "intermediaria": 40827.94975, "financiamento": 1306494.392}, {"unidade": 204, "m2": 120.11, "valor_viabilidade": 1326766.37, "valor_tabela": 1633117.99, "a_vista": 1366569.3611, "ato": 114318.2593, "mensal": 18664.2056, "intermediaria": 40827.94975, "financiamento": 1306494.392}, {"unidade": 301, "m2": 120.11, "valor_viabilidade": 1326766.37, "valor_tabela": 1633117.99, "a_vista": 1366569.3611, "ato": 114318.2593, "mensal": 18664.2056, "intermediaria": 40827.94975, "financiamento": 1306494.392}, {"unidade": 304, "m2": 120.11, "valor_viabilidade": 1326766.37, "valor_tabela": 1633117.99, "a_vista": 1366569.3611, "ato": 114318.2593, "mensal": 18664.2056, "intermediaria": 40827.94975, "financiamento": 1306494.392}, {"unidade": 401, "m2": 120.11, "valor_viabilidade": 1370452.62, "valor_tabela": 1685100.53, "a_vista": 1411566.1986000002, "ato": 117957.03710000002, "mensal": 19258.291771428572, "intermediaria": 42127.51325, "financiamento": 1348080.424}, {"unidade": 404, "m2": 120.11, "valor_viabilidade": 1370452.62, "valor_tabela": 1685100.53, "a_vista": 1411566.1986000002, "ato": 117957.03710000002, "mensal": 19258.291771428572, "intermediaria": 42127.51325, "financiamento": 1348080.424}, {"unidade": 501, "m2": 120.11, "valor_viabilidade": 1370452.62, "valor_tabela": 1685100.53, "a_vista": 1411566.1986000002, "ato": 117957.03710000002, "mensal": 19258.291771428572, "intermediaria": 42127.51325, "financiamento": 1348080.424}, {"unidade": 504, "m2": 120.11, "valor_viabilidade": 1370452.62, "valor_tabela": 1685100.53, "a_vista": 1411566.1986000002, "ato": 117957.03710000002, "mensal": 19258.291771428572, "intermediaria": 42127.51325, "financiamento": 1348080.424}, {"unidade": 601, "m2": 120.11, "valor_viabilidade": 1400170.9, "valor_tabela": 1720462.51, "a_vista": 1442176.027, "ato": 120432.37570000002, "mensal": 19662.428685714287, "intermediaria": 43011.562750000005, "financiamento": 1376370.0080000001}, {"unidade": 604, "m2": 120.11, "valor_viabilidade": 1400170.9, "valor_tabela": 1720462.51, "a_vista": 1442176.027, "ato": 120432.37570000002, "mensal": 19662.428685714287, "intermediaria": 43011.562750000005, "financiamento": 1376370.0080000001}, {"unidade": 701, "m2": 120.11, "valor_viabilidade": 1400170.9, "valor_tabela": 1720462.51, "a_vista": 1442176.027, "ato": 120432.37570000002, "mensal": 19662.428685714287, "intermediaria": 43011.562750000005, "financiamento": 1376370.0080000001}, {"unidade": 704, "m2": 120.11, "valor_viabilidade": 1400170.9, "valor_tabela": 1720462.51, "a_vista": 1442176.027, "ato": 120432.37570000002, "mensal": 19662.428685714287, "intermediaria": 43011.562750000005, "financiamento": 1376370.0080000001}, {"unidade": 801, "m2": 120.11, "valor_viabilidade": 1422798.78, "valor_tabela": 1747387.56, "a_vista": 1465482.7434, "ato": 122317.12920000001, "mensal": 19970.143542857142, "intermediaria": 43684.689000000006, "financiamento": 1397910.0480000002}, {"unidade": 804, "m2": 120.11, "valor_viabilidade": 1422798.78, "valor_tabela": 1747387.56, "a_vista": 1465482.7434, "ato": 122317.12920000001, "mensal": 19970.143542857142, "intermediaria": 43684.689000000006, "financiamento": 1397910.0480000002}, {"unidade": 901, "m2": 120.11, "valor_viabilidade": 1422798.78, "valor_tabela": 1747387.56, "a_vista": 1465482.7434, "ato": 122317.12920000001, "mensal": 19970.143542857142, "intermediaria": 43684.689000000006, "financiamento": 1397910.0480000002}, {"unidade": 904, "m2": 120.11, "valor_viabilidade": 1422798.78, "valor_tabela": 1747387.56, "a_vista": 1465482.7434, "ato": 122317.12920000001, "mensal": 19970.143542857142, "intermediaria": 43684.689000000006, "financiamento": 1397910.0480000002}, {"unidade": 1001, "m2": 120.11, "valor_viabilidade": 1439392.68, "valor_tabela": 1767132.73, "a_vista": 1482574.4604, "ato": 123699.29110000002, "mensal": 20195.80262857143, "intermediaria": 44178.318250000004, "financiamento": 1413706.1840000001}, {"unidade": 1004, "m2": 120.11, "valor_viabilidade": 1439392.68, "valor_tabela": 1767132.73, "a_vista": 1482574.4604, "ato": 123699.29110000002, "mensal": 20195.80262857143, "intermediaria": 44178.318250000004, "financiamento": 1413706.1840000001}, {"unidade": 1101, "m2": 120.11, "valor_viabilidade": 1439392.68, "valor_tabela": 1767132.73, "a_vista": 1482574.4604, "ato": 123699.29110000002, "mensal": 20195.80262857143, "intermediaria": 44178.318250000004, "financiamento": 1413706.1840000001}, {"unidade": 1104, "m2": 120.11, "valor_viabilidade": 1439392.68, "valor_tabela": 1767132.73, "a_vista": 1482574.4604, "ato": 123699.29110000002, "mensal": 20195.80262857143, "intermediaria": 44178.318250000004, "financiamento": 1413706.1840000001}, {"unidade": 1201, "m2": 120.11, "valor_viabilidade": 1456193.22, "valor_tabela": 1787123.81, "a_vista": 1499879.0166, "ato": 125098.66670000002, "mensal": 20424.272114285715, "intermediaria": 44678.095250000006, "financiamento": 1429699.0480000002}, {"unidade": 1204, "m2": 120.11, "valor_viabilidade": 1456193.22, "valor_tabela": 1787123.81, "a_vista": 1499879.0166, "ato": 125098.66670000002, "mensal": 20424.272114285715, "intermediaria": 44678.095250000006, "financiamento": 1429699.0480000002}, {"unidade": 1301, "m2": 120.11, "valor_viabilidade": 1456193.22, "valor_tabela": 1787123.81, "a_vista": 1499879.0166, "ato": 125098.66670000002, "mensal": 20424.272114285715, "intermediaria": 44678.095250000006, "financiamento": 1429699.0480000002}, {"unidade": 1304, "m2": 120.11, "valor_viabilidade": 1456193.22, "valor_tabela": 1787123.81, "a_vista": 1499879.0166, "ato": 125098.66670000002, "mensal": 20424.272114285715, "intermediaria": 44678.095250000006, "financiamento": 1429699.0480000002}, {"unidade": 1401, "m2": 120.11, "valor_viabilidade": 1473130.06, "valor_tabela": 1807277.05, "a_vista": 1517323.9618000002, "ato": 126509.39350000002, "mensal": 20654.59485714286, "intermediaria": 45181.926250000004, "financiamento": 1445821.6400000001}, {"unidade": 1404, "m2": 120.11, "valor_viabilidade": 1473130.06, "valor_tabela": 1807277.05, "a_vista": 1517323.9618000002, "ato": 126509.39350000002, "mensal": 20654.59485714286, "intermediaria": 45181.926250000004, "financiamento": 1445821.6400000001}, {"unidade": 1501, "m2": 120.11, "valor_viabilidade": 1473130.06, "valor_tabela": 1807277.05, "a_vista": 1517323.9618000002, "ato": 126509.39350000002, "mensal": 20654.59485714286, "intermediaria": 45181.926250000004, "financiamento": 1445821.6400000001}, {"unidade": 1504, "m2": 120.11, "valor_viabilidade": 1473130.06, "valor_tabela": 1807277.05, "a_vista": 1517323.9618000002, "ato": 126509.39350000002, "mensal": 20654.59485714286, "intermediaria": 45181.926250000004, "financiamento": 1445821.6400000001}, {"unidade": 1601, "m2": 120.11, "valor_viabilidade": 1490278.01, "valor_tabela": 1827681.5, "a_vista": 1534986.3503, "ato": 127937.70500000002, "mensal": 20887.78857142857, "intermediaria": 45692.037500000006, "financiamento": 1462145.2000000002}, {"unidade": 1604, "m2": 120.11, "valor_viabilidade": 1490278.01, "valor_tabela": 1827681.5, "a_vista": 1534986.3503, "ato": 127937.70500000002, "mensal": 20887.78857142857, "intermediaria": 45692.037500000006, "financiamento": 1462145.2000000002}, {"unidade": 1701, "m2": 120.11, "valor_viabilidade": 1490278.01, "valor_tabela": 1827681.5, "a_vista": 1534986.3503, "ato": 127937.70500000002, "mensal": 20887.78857142857, "intermediaria": 45692.037500000006, "financiamento": 1462145.2000000002}, {"unidade": 1704, "m2": 120.11, "valor_viabilidade": 1490278.01, "valor_tabela": 1827681.5, "a_vista": 1534986.3503, "ato": 127937.70500000002, "mensal": 20887.78857142857, "intermediaria": 45692.037500000006, "financiamento": 1462145.2000000002}, {"unidade": 1801, "m2": 120.11, "valor_viabilidade": 1507613.9, "valor_tabela": 1848309.59, "a_vista": 1552842.317, "ato": 129381.67130000002, "mensal": 21123.538171428572, "intermediaria": 46207.73975000001, "financiamento": 1478647.6720000003}];
+
+// Build andar filter
+(function(){
+  const andares=[...new Set(UNIDADES.map(u=>String(u.unidade).slice(0,-2)||'1'))].sort((a,b)=>+a-+b);
+  const sel=document.getElementById('tp-andar');
+  if(sel) andares.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a+'º andar';sel.appendChild(o);});
+})();
+
+function tpFiltrado(){
+  const tipo=document.getElementById('tp-tipo')?.value||'';
+  const andar=document.getElementById('tp-andar')?.value||'';
+  return UNIDADES.filter(u=>{
+    if(tipo && String(u.m2)!==tipo) return false;
+    if(andar && String(u.unidade).slice(0,-2)!==andar) return false;
+    return true;
+  });
+}
+
+function tpAdj(val){
+  const pct=parseFloat(document.getElementById('tp-reajuste')?.value)||0;
+  if(pct===0) return val;
+  return val*(1+pct/100);
+}
+
+function tpBRL(v){return v>0?'R$ '+Math.round(v).toLocaleString('pt-BR'):'—';}
+function tpBRLf(v){return v>0?'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';}
+
+function renderTabela(){
+  const lista=tpFiltrado();
+  const pct=parseFloat(document.getElementById('tp-reajuste')?.value)||0;
+  const adjBadge=pct!==0?`<span class="tp-badge-adj">${pct>0?'+':''}${pct}%</span>`:'';
+  const el=document.getElementById('tp-content');
+  if(!el||!lista.length)return;
+
+  // Group by tipo
+  const g908 =lista.filter(u=>u.m2<100);
+  const g120 =lista.filter(u=>u.m2>=100);
+
+  let html2='';
+
+  // Summary header
+  html2+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">`;
+  if(pct!==0) html2+=`<div class="tp-mes-badge">📊 Reajuste aplicado: ${pct>0?'+':''}${pct}%</div>`;
+  html2+=`<span style="font-size:11px;color:var(--txt3);margin-left:auto">${lista.length} unidade${lista.length!==1?'s':''}</span></div>`;
+
+  function tpTableSection(items, title, icon){
+    if(!items.length) return '';
+    let t=`<div class="tp-section" style="margin-bottom:14px">
+      <div class="tp-sec-header"><svg viewBox="0 0 24 24">${icon}</svg>${title}</div>
+      <div style="overflow-x:auto">
+      <table class="tp-table">
+        <thead><tr>
+          <th>Unidade</th><th>m²</th>
+          <th>Valor Tabela${adjBadge}</th>
+          <th>À Vista${adjBadge}</th>
+          <th>ATO</th><th>Mensal (84x)</th>
+          <th>Intermediária</th><th>Financiamento</th>
+        </tr></thead><tbody>`;
+    items.forEach(u=>{
+      t+=`<tr>
+        <td>Apto ${u.unidade}</td>
+        <td style="color:var(--txt3)">${u.m2.toFixed(1)}</td>
+        <td class="td-tabela">${tpBRL(tpAdj(u.valor_tabela))}</td>
+        <td class="td-avista">${tpBRL(tpAdj(u.a_vista))}</td>
+        <td class="td-ato">${tpBRL(tpAdj(u.ato))}</td>
+        <td class="td-mensal">${tpBRL(tpAdj(u.mensal))}</td>
+        <td style="color:var(--txt2)">${tpBRL(tpAdj(u.intermediaria))}</td>
+        <td style="color:var(--txt2)">${tpBRL(tpAdj(u.financiamento))}</td>
+      </tr>`;
+    });
+    t+=`</tbody></table></div></div>`;
+    return t;
+  }
+
+  if(g908.length) html2+=tpTableSection(g908,'Tipo 90,8 m² — 2 Dormitórios + 1 Suíte','<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/>');
+  if(g120.length) html2+=tpTableSection(g120,'Tipo 120,11 m² — 3 Dormitórios + 1 Suíte','<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/>');
+
+  // Fluxo de pagamento detail for selected unit
+  html2+=`<div class="tp-section">
+    <div class="tp-sec-header"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>Fluxo de Pagamento — Detalhe por Unidade</div>
+    <div class="tp-fluxo">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span class="filter-label">Selecione a unidade:</span>
+        <select class="tp-unit-sel" id="tp-unit-detail" onchange="renderFluxoDetalhe()">
+          ${lista.map(u=>`<option value="${u.unidade}">Apto ${u.unidade} (${u.m2.toFixed(1)}m²)</option>`).join('')}
+        </select>
+      </div>
+      <div id="tp-fluxo-detail"></div>
+    </div>
+  </div>`;
+
+  el.innerHTML=html2;
+  renderFluxoDetalhe();
+}
+
+function renderFluxoDetalhe(){
+  const sel=document.getElementById('tp-unit-detail');
+  if(!sel) return;
+  const unid=parseInt(sel.value);
+  const u=UNIDADES.find(u=>u.unidade===unid);
+  if(!u) return;
+  const el=document.getElementById('tp-fluxo-detail');
+  if(!el) return;
+
+  const tabAdj=tpAdj(u.valor_tabela);
+  const avAdj=tpAdj(u.a_vista);
+  const atoAdj=tpAdj(u.ato);
+  const menAdj=tpAdj(u.mensal);
+  const intAdj=tpAdj(u.intermediaria);
+  const finAdj=tpAdj(u.financiamento);
+
+  el.innerHTML=`
+    <div class="tp-fluxo-grid">
+      <div class="tp-fluxo-card">
+        <div class="tp-fluxo-label">Valor de Tabela</div>
+        <div class="tp-fluxo-val" style="font-size:14px">${tpBRLf(tabAdj)}</div>
+        <div class="tp-fluxo-sub">Apto ${u.unidade} · ${u.m2.toFixed(1)}m²</div>
+      </div>
+      <div class="tp-fluxo-card" style="background:var(--green-l);border-color:var(--green)">
+        <div class="tp-fluxo-label" style="color:var(--green)">À Vista</div>
+        <div class="tp-fluxo-val" style="color:var(--green)">${tpBRLf(avAdj)}</div>
+        <div class="tp-fluxo-sub">Desconto de ${(((u.valor_tabela-u.a_vista)/u.valor_tabela)*100).toFixed(1)}%</div>
+      </div>
+      <div class="tp-fluxo-card" style="background:var(--brand-l);border-color:var(--brand-m)">
+        <div class="tp-fluxo-label" style="color:var(--brand)">ATO</div>
+        <div class="tp-fluxo-val" style="color:var(--brand)">${tpBRLf(atoAdj)}</div>
+        <div class="tp-fluxo-sub">${(atoAdj/tabAdj*100).toFixed(1)}% do valor</div>
+      </div>
+      <div class="tp-fluxo-card" style="background:var(--sky-l);border-color:#BFDBFE">
+        <div class="tp-fluxo-label" style="color:var(--sky)">Parcela Mensal</div>
+        <div class="tp-fluxo-val" style="color:var(--sky)">${tpBRLf(menAdj)}</div>
+        <div class="tp-fluxo-sub">84 parcelas</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:10px">Composição do pagamento</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:11px">
+        <div>
+          <div style="color:var(--txt3);margin-bottom:3px">ATO (na assinatura)</div>
+          <div style="font-weight:600;color:var(--brand)">${tpBRLf(atoAdj)}</div>
+          <div style="color:var(--txt3);font-size:10px">${(atoAdj/tabAdj*100).toFixed(1)}% do total</div>
+        </div>
+        <div>
+          <div style="color:var(--txt3);margin-bottom:3px">Mensais (84x durante obra)</div>
+          <div style="font-weight:600;color:var(--sky)">${tpBRLf(menAdj)} <span style="font-size:10px;color:var(--txt3)">/ mês</span></div>
+          <div style="color:var(--txt3);font-size:10px">Total: ${tpBRLf(menAdj*84)}</div>
+        </div>
+        <div>
+          <div style="color:var(--txt3);margin-bottom:3px">Intermediária</div>
+          <div style="font-weight:600;color:var(--txt2)">${tpBRLf(intAdj)}</div>
+          <div style="color:var(--txt3);font-size:10px">${(intAdj/tabAdj*100).toFixed(1)}% do total</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:var(--txt3)">Saldo financiamento (SBPE/FGTS)</span>
+        <span style="font-size:13px;font-weight:700;color:var(--txt)">${tpBRLf(finAdj)}</span>
+      </div>
+    </div>`;
+}
+
+// ── PDF Tabela de Preços ──────────────────────────────────────────────
+function gerarTabelaPDF(){
+  const btn=document.getElementById('btn-tpdf');
+  btn.textContent='⏳ Gerando...';btn.disabled=true;
+  setTimeout(()=>{
+    try{
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+      const PW=297,PH=210,ML=10,MR=10,CW=PW-ML-MR;
+      const OR=[232,97,26],ORL=[254,243,236],ORM=[251,207,176];
+      const GR=[30,122,62],GRL=[237,250,243];
+      const SKY=[27,95,168];
+      const TXT=[26,10,2],TXT2=[92,61,42],TXT3=[160,120,96];
+      const BDR=[237,217,204],LGRAY=[245,237,230],WHITE=[255,255,255];
+      const sF=c=>doc.setFillColor(c[0],c[1],c[2]);
+      const sT=c=>doc.setTextColor(c[0],c[1],c[2]);
+      const sD=c=>doc.setDrawColor(c[0],c[1],c[2]);
+
+      const lista=tpFiltrado();
+      const pct=parseFloat(document.getElementById('tp-reajuste')?.value)||0;
+      const tipo=document.getElementById('tp-tipo').options[document.getElementById('tp-tipo').selectedIndex].text;
+
+      // Header
+      sF(OR);doc.rect(0,0,PW,14,'F');
+      doc.addImage(LOGO_B64,'PNG',ML,1.5,9,9);
+      sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(11);
+      doc.text('Tabela de Preços — Intento',ML+11,7);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);
+      sT(ORM);
+      doc.text('Bild Desenvolvimento Imobiliário  ·  '+tipo,ML+11,12);
+      const pctStr=pct!==0?`  ·  Reajuste: ${pct>0?'+':''}${pct}%`:'';
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR')+pctStr,PW-MR,10,{align:'right'});
+
+      let y=18;
+      const cols=[20,14,32,28,22,22,24,26];
+      const hdrs=['Unidade','m²','Valor Tabela','À Vista','ATO','Mensal (84x)','Intermediária','Financiamento'];
+
+      function drawPage(items, title){
+        if(!items.length) return;
+        // Section title
+        sT(OR);doc.setFont('helvetica','bold');doc.setFontSize(9);
+        doc.text(title,ML,y);
+        y+=5;
+        // Header row
+        sF(ORL);doc.rect(ML,y,CW,7,'F');
+        sD(BDR);doc.rect(ML,y,CW,7,'S');
+        let cx=ML;
+        hdrs.forEach((h,i)=>{
+          doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+          sT([196,78,14]);
+          doc.text(h,cx+cols[i]/2,y+4.8,{align:'center'});
+          cx+=cols[i];
+        });
+        y+=7;
+
+        items.forEach((u,ri)=>{
+          const rh=7.5;
+          if(y+rh>PH-10){
+            doc.addPage();
+            sF(OR);doc.rect(0,0,PW,14,'F');
+            doc.addImage(LOGO_B64,'PNG',ML,1.5,9,9);
+            sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(10);
+            doc.text('Tabela de Preços — Intento (cont.)',ML+11,9);
+            y=18;
+          }
+          sF(ri%2===0?WHITE:LGRAY);doc.rect(ML,y,CW,rh,'F');
+          sD(BDR);doc.rect(ML,y,CW,rh,'S');
+          const vals=[
+            'Apto '+u.unidade,
+            u.m2.toFixed(1),
+            tpBRL(tpAdj(u.valor_tabela)),
+            tpBRL(tpAdj(u.a_vista)),
+            tpBRL(tpAdj(u.ato)),
+            tpBRL(tpAdj(u.mensal)),
+            tpBRL(tpAdj(u.intermediaria)),
+            tpBRL(tpAdj(u.financiamento)),
+          ];
+          cx=ML;
+          vals.forEach((v,i)=>{
+            const color=i===3?GR:i===4?OR:i===5?SKY:TXT2;
+            const bold=i===0||i===2||i===3;
+            sT(color);
+            doc.setFont('helvetica',bold?'bold':'normal');
+            doc.setFontSize(6.8);
+            doc.text(v,cx+cols[i]/2,y+5,{align:'center'});
+            cx+=cols[i];
+          });
+          y+=rh;
+        });
+        y+=6;
+      }
+
+      const g908=lista.filter(u=>u.m2<100);
+      const g120=lista.filter(u=>u.m2>=100);
+      if(g908.length) drawPage(g908,'TIPO 90,8 m² — 2 Dormitórios + 1 Suíte');
+      if(g120.length) drawPage(g120,'TIPO 120,11 m² — 3 Dormitórios + 1 Suíte');
+
+      // Footer last page
+      sF(BDR);doc.rect(0,PH-7,PW,7,'F');
+      sT(TXT2);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+      doc.text('Bild Desenvolvimento Imobiliário  ·  Tabela de Preços Intento  ·  Valores sujeitos a alteração',ML,PH-3);
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),PW-MR,PH-3,{align:'right'});
+
+      const slug='tabela_intento'+(pct!==0?'_adj'+pct.toFixed(1).replace('.','_'):'');
+      doc.save(slug+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+      toast('PDF gerado!');
+    }catch(e){console.error(e);toast('Erro: '+e.message,true);}
+    finally{btn.textContent='⬇ PDF Apresentação';btn.disabled=false;}
+  },100);
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  FLUXO DE PAGAMENTO
+// ═══════════════════════════════════════════════════════
+const UNIDADES_FLUXO = [{"unidade": 203, "m2": 90.8, "val_tabela": 1245022.1966879154, "a_vista": 1158402.6798074339, "s1_ato": 87151.55376815409, "s1_mensal": 8300.147977919436, "s1_interm": 31125.554917197886, "s1_financ": 996017.7573503323, "s1_total": 1245022.1966879154, "s2_ato": 311255.54917197884, "s2_mensal": 15562.777458598941, "s2_interm": 62251.10983439577, "s2_financ": 622511.0983439577, "s2_total": 1183303.123741192, "andar": "2º ANDAR", "tipo": "LINHA"}, {"unidade": 1102, "m2": 90.8, "val_tabela": 1344605.7586660043, "a_vista": 1251391.858598131, "s1_ato": 94122.4031066203, "s1_mensal": 8964.038391106695, "s1_interm": 33615.14396665011, "s1_financ": 1075684.6069328035, "s1_total": 1344605.7586660043, "s2_ato": 336151.4396665011, "s2_mensal": 16807.57198332505, "s2_interm": 67230.28793330022, "s2_financ": 672302.8793330021, "s2_total": 1278283.973771451, "andar": "11º ANDAR", "tipo": "LINHA"}, {"unidade": 1202, "m2": 90.8, "val_tabela": 1359439.5398451935, "a_vista": 1265243.3527886802, "s1_ato": 95160.76778916355, "s1_mensal": 9062.930265634624, "s1_interm": 33985.98849612984, "s1_financ": 1087551.6318761548, "s1_total": 1359439.5398451935, "s2_ato": 339859.8849612984, "s2_mensal": 16992.99424806492, "s2_interm": 67971.97699225968, "s2_financ": 679719.7699225968, "s2_total": 1292432.1435855841, "andar": "12º ANDAR", "tipo": "LINHA"}, {"unidade": 302, "m2": 90.8, "val_tabela": 1359439.5398451935, "a_vista": 1265243.3527886802, "s1_ato": 95160.76778916355, "s1_mensal": 9062.930265634624, "s1_interm": 33985.98849612984, "s1_financ": 1087551.6318761548, "s1_total": 1359439.5398451935, "s2_ato": 339859.8849612984, "s2_mensal": 16992.99424806492, "s2_interm": 67971.97699225968, "s2_financ": 679719.7699225968, "s2_total": 1292432.1435855841, "andar": "3º ANDAR", "tipo": "LINHA"}, {"unidade": 1303, "m2": 90.8, "val_tabela": 1359439.5398451935, "a_vista": 1265243.3527886802, "s1_ato": 95160.76778916355, "s1_mensal": 9062.930265634624, "s1_interm": 33985.98849612984, "s1_financ": 1087551.6318761548, "s1_total": 1359439.5398451935, "s2_ato": 339859.8849612984, "s2_mensal": 16992.99424806492, "s2_interm": 67971.97699225968, "s2_financ": 679719.7699225968, "s2_total": 1292432.1435855841, "andar": "13º ANDAR", "tipo": "LINHA"}, {"unidade": 1602, "m2": 90.8, "val_tabela": 1389598.1408545235, "a_vista": 1293404.8634399157, "s1_ato": 97271.86985981665, "s1_mensal": 9263.987605696824, "s1_interm": 34739.95352136309, "s1_financ": 1111678.5126836188, "s1_total": 1389598.1408545235, "s2_ato": 347399.5352136309, "s2_mensal": 17369.976760681544, "s2_interm": 69479.90704272618, "s2_financ": 694799.0704272618, "s2_total": 1321196.826257006, "andar": "16º ANDAR", "tipo": "LINHA"}, {"unidade": 1702, "m2": 90.8, "val_tabela": 1389598.1408545235, "a_vista": 1293404.8634399157, "s1_ato": 97271.86985981665, "s1_mensal": 9263.987605696824, "s1_interm": 34739.95352136309, "s1_financ": 1111678.5126836188, "s1_total": 1389598.1408545235, "s2_ato": 347399.5352136309, "s2_mensal": 17369.976760681544, "s2_interm": 69479.90704272618, "s2_financ": 694799.0704272618, "s2_total": 1321196.826257006, "andar": "17º ANDAR", "tipo": "LINHA"}, {"unidade": 1703, "m2": 90.8, "val_tabela": 1389598.1408545235, "a_vista": 1293404.8634399157, "s1_ato": 97271.86985981665, "s1_mensal": 9263.987605696824, "s1_interm": 34739.95352136309, "s1_financ": 1111678.5126836188, "s1_total": 1389598.1408545235, "s2_ato": 347399.5352136309, "s2_mensal": 17369.976760681544, "s2_interm": 69479.90704272618, "s2_financ": 694799.0704272618, "s2_total": 1321196.826257006, "andar": "17º ANDAR", "tipo": "LINHA"}, {"unidade": 1903, "m2": 90.8, "val_tabela": 1404927.0687491829, "a_vista": 1307718.7159307497, "s1_ato": 98344.89481244281, "s1_mensal": 9366.180458327886, "s1_interm": 35123.17671872957, "s1_financ": 1123941.6549993462, "s1_total": 1404927.0687491829, "s2_ato": 351231.7671872957, "s2_mensal": 17561.588359364785, "s2_interm": 70246.35343745914, "s2_financ": 702463.5343745914, "s2_total": 1335817.2573057332, "andar": "19º ANDAR", "tipo": "LINHA"}, {"unidade": 401, "m2": 120.11, "val_tabela": 1633198.5925795473, "a_vista": 1328241.9961138442, "s1_ato": 114323.90148056833, "s1_mensal": 10887.990617196983, "s1_interm": 40829.96481448869, "s1_financ": 1306558.874063638, "s1_total": 1633198.5925795473, "s2_ato": 408299.6481448868, "s2_mensal": 20414.98240724434, "s2_interm": 81659.92962897738, "s2_financ": 816599.2962897737, "s2_total": 1360905.9679654352, "andar": "4º ANDAR", "tipo": "CANTO"}, {"unidade": 601, "m2": 120.11, "val_tabela": 1667471.4052100219, "a_vista": 1357044.9488727625, "s1_ato": 116722.99836470155, "s1_mensal": 11116.47603473348, "s1_interm": 41686.78513025055, "s1_financ": 1333977.1241680176, "s1_total": 1667471.4052100219, "s2_ato": 416867.85130250547, "s2_mensal": 20843.392565125272, "s2_interm": 83373.5702605011, "s2_financ": 833735.7026050109, "s2_total": 1390394.376976963, "andar": "6º ANDAR", "tipo": "CANTO"}, {"unidade": 604, "m2": 120.11, "val_tabela": 1667471.4052100219, "a_vista": 1357044.9488727625, "s1_ato": 116722.99836470155, "s1_mensal": 11116.47603473348, "s1_interm": 41686.78513025055, "s1_financ": 1333977.1241680176, "s1_total": 1667471.4052100219, "s2_ato": 416867.85130250547, "s2_mensal": 20843.392565125272, "s2_interm": 83373.5702605011, "s2_financ": 833735.7026050109, "s2_total": 1390394.376976963, "andar": "6º ANDAR", "tipo": "CANTO"}, {"unidade": 704, "m2": 120.11, "val_tabela": 1667471.4052100219, "a_vista": 1357044.9488727625, "s1_ato": 116722.99836470155, "s1_mensal": 11116.47603473348, "s1_interm": 41686.78513025055, "s1_financ": 1333977.1241680176, "s1_total": 1667471.4052100219, "s2_ato": 416867.85130250547, "s2_mensal": 20843.392565125272, "s2_interm": 83373.5702605011, "s2_financ": 833735.7026050109, "s2_total": 1390394.376976963, "andar": "7º ANDAR", "tipo": "CANTO"}, {"unidade": 904, "m2": 120.11, "val_tabela": 1693567.15040232, "a_vista": 1378975.8748252538, "s1_ato": 118549.70052816242, "s1_mensal": 11290.447669348801, "s1_interm": 42339.17876005801, "s1_financ": 1354853.7203218562, "s1_total": 1693567.15040232, "s2_ato": 423391.78760058, "s2_mensal": 21169.589380029, "s2_interm": 84678.35752011601, "s2_financ": 846783.57520116, "s2_total": 1412847.2178333004, "andar": "9º ANDAR", "tipo": "CANTO"}, {"unidade": 1001, "m2": 120.11, "val_tabela": 1712704.1641469025, "a_vista": 1395058.666417966, "s1_ato": 119889.29149028318, "s1_mensal": 11418.02776097935, "s1_interm": 42817.604103672566, "s1_financ": 1370163.331317522, "s1_total": 1712704.1641469025, "s2_ato": 428176.0410367256, "s2_mensal": 21408.80205183628, "s2_interm": 85635.20820734513, "s2_financ": 856352.0820734513, "s2_total": 1429312.749700904, "andar": "10º ANDAR", "tipo": "CANTO"}, {"unidade": 1004, "m2": 120.11, "val_tabela": 1712704.1641469025, "a_vista": 1395058.666417966, "s1_ato": 119889.29149028318, "s1_mensal": 11418.02776097935, "s1_interm": 42817.604103672566, "s1_financ": 1370163.331317522, "s1_total": 1712704.1641469025, "s2_ato": 428176.0410367256, "s2_mensal": 21408.80205183628, "s2_interm": 85635.20820734513, "s2_financ": 856352.0820734513, "s2_total": 1429312.749700904, "andar": "10º ANDAR", "tipo": "CANTO"}, {"unidade": 1101, "m2": 120.11, "val_tabela": 1712704.1641469025, "a_vista": 1395058.666417966, "s1_ato": 119889.29149028318, "s1_mensal": 11418.02776097935, "s1_interm": 42817.604103672566, "s1_financ": 1370163.331317522, "s1_total": 1712704.1641469025, "s2_ato": 428176.0410367256, "s2_mensal": 21408.80205183628, "s2_interm": 85635.20820734513, "s2_financ": 856352.0820734513, "s2_total": 1429312.749700904, "andar": "11º ANDAR", "tipo": "CANTO"}, {"unidade": 1104, "m2": 120.11, "val_tabela": 1712704.1641469025, "a_vista": 1395058.666417966, "s1_ato": 119889.29149028318, "s1_mensal": 11418.02776097935, "s1_interm": 42817.604103672566, "s1_financ": 1370163.331317522, "s1_total": 1712704.1641469025, "s2_ato": 428176.0410367256, "s2_mensal": 21408.80205183628, "s2_interm": 85635.20820734513, "s2_financ": 856352.0820734513, "s2_total": 1429312.749700904, "andar": "11º ANDAR", "tipo": "CANTO"}, {"unidade": 1201, "m2": 120.11, "val_tabela": 1732079.5056052336, "a_vista": 1411341.749184742, "s1_ato": 121245.56539236636, "s1_mensal": 11547.19670403489, "s1_interm": 43301.98764013084, "s1_financ": 1385663.604484187, "s1_total": 1732079.5056052336, "s2_ato": 433019.8764013084, "s2_mensal": 21650.993820065418, "s2_interm": 86603.97528026169, "s2_financ": 866039.7528026168, "s2_total": 1445983.3392968467, "andar": "12º ANDAR", "tipo": "CANTO"}, {"unidade": 1204, "m2": 120.11, "val_tabela": 1732079.5056052336, "a_vista": 1411341.749184742, "s1_ato": 121245.56539236636, "s1_mensal": 11547.19670403489, "s1_interm": 43301.98764013084, "s1_financ": 1385663.604484187, "s1_total": 1732079.5056052336, "s2_ato": 433019.8764013084, "s2_mensal": 21650.993820065418, "s2_interm": 86603.97528026169, "s2_financ": 866039.7528026168, "s2_total": 1445983.3392968467, "andar": "12º ANDAR", "tipo": "CANTO"}, {"unidade": 1304, "m2": 120.11, "val_tabela": 1732079.5056052336, "a_vista": 1411341.749184742, "s1_ato": 121245.56539236636, "s1_mensal": 11547.19670403489, "s1_interm": 43301.98764013084, "s1_financ": 1385663.604484187, "s1_total": 1732079.5056052336, "s2_ato": 433019.8764013084, "s2_mensal": 21650.993820065418, "s2_interm": 86603.97528026169, "s2_financ": 866039.7528026168, "s2_total": 1445983.3392968467, "andar": "13º ANDAR", "tipo": "CANTO"}, {"unidade": 1501, "m2": 120.11, "val_tabela": 1751612.023011337, "a_vista": 1427756.9229896055, "s1_ato": 122612.8416107936, "s1_mensal": 11677.413486742247, "s1_interm": 43790.30057528343, "s1_financ": 1401289.6184090697, "s1_total": 1751612.023011337, "s2_ato": 437903.00575283426, "s2_mensal": 21895.15028764171, "s2_interm": 87580.60115056686, "s2_financ": 875806.0115056685, "s2_total": 1462789.163449832, "andar": "15º ANDAR", "tipo": "CANTO"}, {"unidade": 504, "m2": 120.11, "val_tabela": 1751612.023011337, "a_vista": 1427756.9229896055, "s1_ato": 122612.8416107936, "s1_mensal": 11677.413486742247, "s1_interm": 43790.30057528343, "s1_financ": 1401289.6184090697, "s1_total": 1751612.023011337, "s2_ato": 437903.00575283426, "s2_mensal": 21895.15028764171, "s2_interm": 87580.60115056686, "s2_financ": 875806.0115056685, "s2_total": 1462789.163449832, "andar": "5º ANDAR", "tipo": "CANTO"}, {"unidade": 1604, "m2": 120.11, "val_tabela": 1771388.0057106584, "a_vista": 1444376.7056024647, "s1_ato": 123997.16039974609, "s1_mensal": 11809.25337140439, "s1_interm": 44284.700142766465, "s1_financ": 1417110.404568527, "s1_total": 1771388.0057106584, "s2_ato": 442847.0014276646, "s2_mensal": 22142.35007138323, "s2_interm": 88569.40028553293, "s2_financ": 885694.0028553292, "s2_total": 1479804.4657166777, "andar": "16º ANDAR", "tipo": "CANTO"}, {"unidade": 1701, "m2": 120.11, "val_tabela": 1771388.0057106584, "a_vista": 1444376.7056024647, "s1_ato": 123997.16039974609, "s1_mensal": 11809.25337140439, "s1_interm": 44284.700142766465, "s1_financ": 1417110.404568527, "s1_total": 1771388.0057106584, "s2_ato": 442847.0014276646, "s2_mensal": 22142.35007138323, "s2_interm": 88569.40028553293, "s2_financ": 885694.0028553292, "s2_total": 1479804.4657166777, "andar": "17º ANDAR", "tipo": "CANTO"}, {"unidade": 1704, "m2": 120.11, "val_tabela": 1771388.0057106584, "a_vista": 1444376.7056024647, "s1_ato": 123997.16039974609, "s1_mensal": 11809.25337140439, "s1_interm": 44284.700142766465, "s1_financ": 1417110.404568527, "s1_total": 1771388.0057106584, "s2_ato": 442847.0014276646, "s2_mensal": 22142.35007138323, "s2_interm": 88569.40028553293, "s2_financ": 885694.0028553292, "s2_total": 1479804.4657166777, "andar": "17º ANDAR", "tipo": "CANTO"}, {"unidade": 1801, "m2": 120.11, "val_tabela": 1791380.736290899, "a_vista": 1461178.6436468617, "s1_ato": 125396.65154036295, "s1_mensal": 11942.538241939328, "s1_interm": 44784.51840727248, "s1_financ": 1433104.5890327194, "s1_total": 1791380.736290899, "s2_ato": 447845.1840727248, "s2_mensal": 22392.259203636237, "s2_interm": 89569.03681454496, "s2_financ": 895690.3681454496, "s2_total": 1497006.2583726796, "andar": "18º ANDAR", "tipo": "CANTO"}, {"unidade": 1804, "m2": 120.11, "val_tabela": 1791380.736290899, "a_vista": 1461178.6436468617, "s1_ato": 125396.65154036295, "s1_mensal": 11942.538241939328, "s1_interm": 44784.51840727248, "s1_financ": 1433104.5890327194, "s1_total": 1791380.736290899, "s2_ato": 447845.1840727248, "s2_mensal": 22392.259203636237, "s2_interm": 89569.03681454496, "s2_financ": 895690.3681454496, "s2_total": 1497006.2583726796, "andar": "18º ANDAR", "tipo": "CANTO"}, {"unidade": 1904, "m2": 120.11, "val_tabela": 1791380.736290899, "a_vista": 1461178.6436468617, "s1_ato": 125396.65154036295, "s1_mensal": 11942.538241939328, "s1_interm": 44784.51840727248, "s1_financ": 1433104.5890327194, "s1_total": 1791380.736290899, "s2_ato": 447845.1840727248, "s2_mensal": 22392.259203636237, "s2_interm": 89569.03681454496, "s2_financ": 895690.3681454496, "s2_total": 1497006.2583726796, "andar": "19º ANDAR", "tipo": "CANTO"}];
+
+// Build unit selector
+(function(){
+  const sel = document.getElementById('fl-unit');
+  if(!sel) return;
+  UNIDADES_FLUXO.forEach(u=>{
+    const o = document.createElement('option');
+    o.value = u.unidade;
+    o.textContent = `Apto ${u.unidade} — ${u.m2.toFixed(1)}m² (${u.andar})`;
+    sel.appendChild(o);
+  });
+})();
+
+function flAdj(val){
+  const pct = parseFloat(document.getElementById('fl-reajuste')?.value)||0;
+  return val * (1 + pct/100);
+}
+
+function flBRL(v){
+  if(!v||v===0) return '—';
+  return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function renderFluxo(){
+  const sel = document.getElementById('fl-unit');
+  if(!sel) return;
+  const uid = parseInt(sel.value);
+  const u = UNIDADES_FLUXO.find(x=>x.unidade===uid);
+  if(!u) return;
+  const pct = parseFloat(document.getElementById('fl-reajuste')?.value)||0;
+
+  const tabela   = flAdj(u.val_tabela);
+  const avista   = flAdj(u.a_vista);
+  const s1_ato   = flAdj(u.s1_ato);
+  const s1_men   = flAdj(u.s1_mensal);
+  const s1_int   = flAdj(u.s1_interm);
+  const s1_fin   = flAdj(u.s1_financ);
+  const s2_ato   = flAdj(u.s2_ato);
+  const s2_men   = flAdj(u.s2_mensal);
+  const s2_int   = flAdj(u.s2_interm);
+  const s2_fin   = flAdj(u.s2_financ);
+  const s2_tot   = flAdj(u.s2_total);
+
+  const pctBadge = pct!==0 ? `<span style="font-size:9px;background:rgba(255,255,255,.15);color:#fff;padding:2px 7px;border-radius:10px;margin-left:6px">${pct>0?'+':''}${pct}%</span>` : '';
+
+  document.getElementById('fluxo-content').innerHTML = `
+  <div class="fluxo-card">
+    <!-- Header -->
+    <div class="fluxo-header">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:3px;font-style:italic">INTENTO</div>
+        <div style="font-size:10px;color:#B8A878;letter-spacing:3px;margin-top:1px">C A M B U Í</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:.5px">Fluxo de pagamento${pctBadge}</div>
+      </div>
+      <div>
+        <img src="${LOGO_B64}" alt="Bild" style="height:40px;width:auto;border-radius:6px">
+      </div>
+    </div>
+
+    <!-- Unit info bar -->
+    <div class="fluxo-unit-bar" style="display:flex;align-items:center;gap:8px;padding:16px 28px">
+      <div style="font-size:28px;opacity:.5">🏢</div>
+      <div class="fluxo-unit-field">
+        <div class="fluxo-unit-label">unidade</div>
+        <div class="fluxo-unit-val">${u.unidade}</div>
+      </div>
+      <div style="width:1px;height:44px;background:rgba(255,255,255,.1);margin:0 4px"></div>
+      <div style="text-align:center;margin:0 8px">
+        <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,.3)">m²</div>
+      </div>
+      <div class="fluxo-unit-field">
+        <div class="fluxo-unit-label">metragem</div>
+        <div class="fluxo-unit-val">${u.m2.toFixed(2).replace('.',',')}</div>
+      </div>
+      <div style="width:1px;height:44px;background:rgba(255,255,255,.1);margin:0 4px"></div>
+      <div style="font-size:28px;opacity:.5;margin:0 4px">🚗</div>
+      <div class="fluxo-unit-field" style="flex:1">
+        <div class="fluxo-unit-label">tipo</div>
+        <div class="fluxo-unit-val" style="font-size:14px">${u.tipo}</div>
+      </div>
+      <div class="fluxo-unit-field" style="flex:1">
+        <div class="fluxo-unit-label">andar</div>
+        <div class="fluxo-unit-val" style="font-size:14px">${u.andar}</div>
+      </div>
+    </div>
+
+    <!-- Three scenarios -->
+    <div class="fluxo-scenarios">
+
+      <!-- S1: 20/80 -->
+      <div class="fluxo-scenario">
+        <div class="fluxo-scen-header gold">
+          <div class="fluxo-scen-title">TABELA | 20% SINAL +<br>80% FINANCIAMENTO</div>
+        </div>
+        <div class="fluxo-scen-body">
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">ato <span class="fluxo-scen-row-pct">(7%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s1_ato)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">12 mensais <span class="fluxo-scen-row-pct">(8%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s1_men)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">2 intermediárias <span class="fluxo-scen-row-pct">(5%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s1_int)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">financiamento <span class="fluxo-scen-row-pct">(80%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s1_fin)}</span>
+          </div>
+        </div>
+        <div class="fluxo-total-bar">
+          <div class="fluxo-total-label">valor total da unidade</div>
+          <div class="fluxo-total-val">${Number(tabela).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <div class="fluxo-total-m2">R$ ${(tabela/u.m2).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} / m²</div>
+        </div>
+      </div>
+
+      <!-- S2: 50/50 -->
+      <div class="fluxo-scenario">
+        <div class="fluxo-scen-header gold2">
+          <div class="fluxo-scen-title">TABELA | 50% SINAL +<br>50% FINANCIAMENTO</div>
+        </div>
+        <div class="fluxo-scen-body">
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">ato <span class="fluxo-scen-row-pct">(25%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s2_ato)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">12 mensais <span class="fluxo-scen-row-pct">(15%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s2_men)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">2 intermediárias <span class="fluxo-scen-row-pct">(10%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s2_int)}</span>
+          </div>
+          <div class="fluxo-scen-row">
+            <span class="fluxo-scen-row-label">financiamento <span class="fluxo-scen-row-pct">(50%)</span></span>
+            <span class="fluxo-scen-row-val">${flBRL(s2_fin)}</span>
+          </div>
+        </div>
+        <div class="fluxo-total-bar">
+          <div class="fluxo-total-label">valor total da unidade</div>
+          <div class="fluxo-total-val">${Number(s2_tot).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <div class="fluxo-total-m2">R$ ${(s2_tot/u.m2).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} / m²</div>
+        </div>
+      </div>
+
+      <!-- S3: À vista -->
+      <div class="fluxo-scenario" style="border-right:none">
+        <div class="fluxo-scen-header gold3">
+          <div class="fluxo-scen-title" style="padding:12px 0">TABELA | À VISTA</div>
+        </div>
+        <div class="fluxo-scen-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;text-align:center">
+          <div style="font-size:13px;color:#B8A878;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Valor especial à vista</div>
+          <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px">${flBRL(avista)}</div>
+          <div style="margin-top:12px;font-size:11px;color:rgba(184,168,120,.7)">
+            Desconto de ${(((u.val_tabela - u.a_vista)/u.val_tabela)*100).toFixed(1)}% sobre o valor de tabela
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.3)">
+            Pagamento único na assinatura
+          </div>
+        </div>
+        <div class="fluxo-total-bar">
+          <div class="fluxo-total-label">valor total da unidade</div>
+          <div class="fluxo-total-val">${Number(avista).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <div class="fluxo-total-m2">R$ ${(avista/u.m2).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} / m²</div>
+        </div>
+      </div>
+
+    </div><!-- end scenarios -->
+
+    <div class="fluxo-footer-note">
+      Valores referentes ao mês de ${new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}. 
+      Sujeitos a reajuste. Financiamento sujeito à aprovação de crédito. Consulte seu corretor.
+    </div>
+  </div>`;
+}
+
+// ── PDF Fluxo de Pagamento ────────────────────────────────────────────
+function gerarFluxoPDF(){
+  const btn=document.getElementById('btn-flpdf');
+  btn.textContent='⏳ Gerando...';btn.disabled=true;
+  setTimeout(()=>{
+    try{
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+      const PW=297,PH=210;
+      const NAVY=[27,58,107], GOLD=[184,168,120], GOLD2=[154,138,94], GOLD3=[200,184,136];
+      const WHITE=[255,255,255], OFF=[240,235,225];
+      const sF=c=>doc.setFillColor(c[0],c[1],c[2]);
+      const sT=c=>doc.setTextColor(c[0],c[1],c[2]);
+      const sD=c=>doc.setDrawColor(c[0],c[1],c[2]);
+
+      const sel=document.getElementById('fl-unit');
+      const uid=parseInt(sel.value);
+      const u=UNIDADES_FLUXO.find(x=>x.unidade===uid);
+      if(!u)return;
+
+      const pct=parseFloat(document.getElementById('fl-reajuste')?.value)||0;
+      const tabela=flAdj(u.val_tabela);
+      const avista=flAdj(u.a_vista);
+      const s1_ato=flAdj(u.s1_ato), s1_men=flAdj(u.s1_mensal);
+      const s1_int=flAdj(u.s1_interm), s1_fin=flAdj(u.s1_financ);
+      const s2_ato=flAdj(u.s2_ato), s2_men=flAdj(u.s2_mensal);
+      const s2_int=flAdj(u.s2_interm), s2_fin=flAdj(u.s2_financ);
+      const s2_tot=flAdj(u.s2_total);
+
+      const f2=(v)=>v>0?'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+      const fk=(v)=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+      // Full navy background
+      sF(NAVY); doc.rect(0,0,PW,PH,'F');
+
+      // ── HEADER ─────────────────────────────────────────────────
+      // INTENTO text
+      sT(WHITE);doc.setFont('helvetica','bolditalic');doc.setFontSize(20);
+      doc.text('INTENTO',12,16);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);
+      sT(GOLD);doc.setCharSpace(3);doc.text('C A M B U Í',12,21);doc.setCharSpace(0);
+
+      // Separator line
+      sF(GOLD);doc.rect(62,8,0.4,16,'F');
+
+      // Title
+      sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(20);
+      doc.text('Fluxo de pagamento',68,18);
+      if(pct!==0){
+        doc.setFont('helvetica','normal');doc.setFontSize(8);sT(GOLD);
+        doc.text(`reajuste ${pct>0?'+':''}${pct}%`,68,24);
+      }
+
+      // Bild logo top right
+      doc.addImage(LOGO_B64,'PNG',PW-28,6,20,16);
+
+      // ── UNIT BAR ────────────────────────────────────────────────
+      const uby=28;
+      sF([22,48,90]);doc.rect(0,uby,PW,24,'F');
+      sD([255,255,255]);doc.setLineWidth(0.1);doc.rect(0,uby,PW,24,'S');
+
+      function unitField(label,val,x,w){
+        sF([30,58,110]);doc.roundedRect(x,uby+3,w,18,2,2,'F');
+        sD(GOLD);doc.setLineWidth(0.3);doc.roundedRect(x,uby+3,w,18,2,2,'S');
+        sT(GOLD);doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setCharSpace(1);
+        doc.text(label.toUpperCase(),x+w/2,uby+9,{align:'center'});doc.setCharSpace(0);
+        sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(14);
+        doc.text(String(val),x+w/2,uby+19,{align:'center'});
+      }
+
+      unitField('unidade',u.unidade,10,30);
+      // m2 label
+      sT([255,255,255]);doc.setFont('helvetica','bold');doc.setFontSize(18);
+      doc.setTextColor(255,255,255,0.3);doc.setTextColor(100,130,160);
+      doc.text('m²',46,uby+20);
+      unitField('metragem',u.m2.toFixed(2).replace('.',','),54,32);
+      // car icon area
+      sT([100,130,160]);doc.setFont('helvetica','normal');doc.setFontSize(16);
+      doc.text('🚗',94,uby+20);
+      unitField('tipo',u.tipo,104,28);
+      unitField('andar',u.andar,136,36);
+
+      // ── THREE COLUMNS ────────────────────────────────────────────
+      const cy=53; const CH=PH-cy-10;
+      const cw=PW/3;
+
+      // Column backgrounds
+      [[0,GOLD],[cw,GOLD2],[cw*2,GOLD3]].forEach(([x,clr])=>{
+        sF(clr);doc.rect(x,cy,cw,12,'F');
+      });
+
+      // Column titles
+      const ctitles=[
+        ['TABELA | 20% SINAL +','80% FINANCIAMENTO'],
+        ['TABELA | 50% SINAL +','50% FINANCIAMENTO'],
+        ['TABELA | À VISTA',''],
+      ];
+      ctitles.forEach(([t1,t2],i)=>{
+        sT(NAVY);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+        doc.text(t1,i*cw+cw/2,cy+5,{align:'center'});
+        if(t2) doc.text(t2,i*cw+cw/2,cy+9.5,{align:'center'});
+      });
+
+      // Rows
+      function scenRow(label,pctStr,val,x,y,ry){
+        sF([30,55,100]);doc.roundedRect(x+4,ry,cw-8,8.5,1.5,1.5,'F');
+        sT(GOLD);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+        doc.text(label,x+8,ry+5.5);
+        sT([160,150,120]);doc.setFontSize(6.5);
+        doc.text(pctStr,x+8+doc.getTextWidth(label)+1,ry+5.5);
+        sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(8);
+        doc.text(f2(val),x+cw-6,ry+5.5,{align:'right'});
+      }
+
+      const ry1=cy+14;
+      scenRow('ato','(7%)',s1_ato,0,cy,ry1);
+      scenRow('12 mensais','(8%)',s1_men,0,cy,ry1+10);
+      scenRow('2 intermediárias','(5%)',s1_int,0,cy,ry1+20);
+      scenRow('financiamento','(80%)',s1_fin,0,cy,ry1+30);
+
+      scenRow('ato','(25%)',s2_ato,cw,cy,ry1);
+      scenRow('12 mensais','(15%)',s2_men,cw,cy,ry1+10);
+      scenRow('2 intermediárias','(10%)',s2_int,cw,cy,ry1+20);
+      scenRow('financiamento','(50%)',s2_fin,cw,cy,ry1+30);
+
+      // À vista column — centered
+      const discPct=(((u.val_tabela-u.a_vista)/u.val_tabela)*100).toFixed(1);
+      sT(GOLD);doc.setFont('helvetica','bold');doc.setFontSize(8);
+      doc.text('Valor especial à vista',cw*2+cw/2,ry1+12,{align:'center'});
+      sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(16);
+      doc.text(f2(avista),cw*2+cw/2,ry1+26,{align:'center'});
+      sT([160,150,120]);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      doc.text(`Desconto de ${discPct}% sobre o valor de tabela`,cw*2+cw/2,ry1+34,{align:'center'});
+      doc.text('Pagamento único na assinatura',cw*2+cw/2,ry1+40,{align:'center'});
+
+      // Vertical separators
+      sF(GOLD);doc.setLineWidth(0.3);
+      sD(GOLD);doc.line(cw,cy,cw,PH-18);
+      doc.line(cw*2,cy,cw*2,PH-18);
+
+      // ── TOTAL BARS ───────────────────────────────────────────────
+      const ty=PH-28;
+      [[tabela,0],[s2_tot,cw],[avista,cw*2]].forEach(([tot,x])=>{
+        sF([22,48,88]);doc.rect(x,ty,cw,18,'F');
+        sT(GOLD);doc.setFont('helvetica','bold');doc.setFontSize(7);
+        doc.text('valor total da unidade',x+cw/2,ty+5,{align:'center'});
+        sT(WHITE);doc.setFont('helvetica','bold');doc.setFontSize(14);
+        doc.text(fk(tot),x+cw/2,ty+13,{align:'center'});
+        sT(GOLD);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+        doc.text(`R$ ${(tot/u.m2).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} / m²`,x+cw/2,ty+18,{align:'center'});
+      });
+
+      // Footer note
+      sT([100,120,150]);doc.setFont('helvetica','italic');doc.setFontSize(6.5);
+      const mes=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+      doc.text(`Valores referentes ao mês de ${mes}. Sujeitos a reajuste. Financiamento sujeito à aprovação de crédito.`,PW/2,PH-3,{align:'center'});
+
+      doc.save(`fluxo_apto${u.unidade}_${new Date().toISOString().slice(0,10)}.pdf`);
+      toast('PDF gerado!');
+    }catch(e){console.error(e);toast('Erro: '+e.message,true);}
+    finally{btn.textContent='⬇ PDF Cliente';btn.disabled=false;}
+  },100);
+}
 
 init();
 
